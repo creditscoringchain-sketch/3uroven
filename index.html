@@ -9,135 +9,132 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; min-height: 100vh; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 40px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        h1 { color: #00ff9d; font-size: 2.5rem; margin-bottom: 10px; }
         
-        /* Утилиты */
-        .connect-btn { background: linear-gradient(45deg, #00ff9d, #00b8ff); color: #000; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .connect-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 157, 0.4); }
-        .panel { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; }
-        .message { padding: 15px; border-radius: 8px; margin: 15px 0; display: none; font-size: 0.9rem; }
-        .error { background: rgba(255, 65, 108, 0.2); color: #ff416c; border: 1px solid #ff416c; }
-        .success { background: rgba(0, 255, 157, 0.2); color: #00ff9d; border: 1px solid #00ff9d; }
+        /* Заголовок (Логотип) */
+        header { text-align: center; margin-bottom: 30px; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        h1 { color: #00ff9d; font-size: 2.8rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
+        .sub-logo { color: #8a9ba8; font-size: 1.1rem; }
 
-        /* Вкладки */
+        /* Экран входа (Центральная кнопка) */
+        #authScreen { text-align: center; padding: 50px 20px; }
+        .connect-main-btn { 
+            background: linear-gradient(45deg, #00ff9d, #00b8ff); 
+            color: #000; border: none; padding: 18px 40px; 
+            border-radius: 30px; font-weight: bold; font-size: 1.2rem;
+            cursor: pointer; transition: 0.3s; width: 100%; max-width: 400px;
+            box-shadow: 0 10px 20px rgba(0, 255, 157, 0.2);
+        }
+        .connect-main-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(0, 255, 157, 0.4); }
+
+        /* Основной интерфейс (СКРЫТ ПО УМОЛЧАНИЮ) */
+        #mainAppUI { display: none; }
+
+        /* Элементы панелей */
+        .panel { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; }
         .tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .tab { padding: 12px 25px; cursor: pointer; transition: 0.3s; color: #8a9ba8; }
+        .tab { padding: 12px 25px; cursor: pointer; color: #8a9ba8; }
         .tab.active { border-bottom: 3px solid #00ff9d; color: #00ff9d; font-weight: bold; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Дашборд */
+        /* Статистика */
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
         .stat-card { background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: center; }
         .stat-value { font-size: 1.5rem; color: #00ff9d; font-weight: bold; }
         
-        /* Уровни */
         .level-item { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 10px; }
         .circles { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
         .circle { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid #444; }
         .circle.active { background: #00ff9d; box-shadow: 0 0 8px #00ff9d; border: none; }
 
-        /* Админка */
-        .admin-badge { background: gold; color: #000; padding: 2px 10px; border-radius: 5px; font-size: 0.8rem; display: none; margin-left: 10px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; color: #8a9ba8; margin-bottom: 5px; font-size: 0.9rem; }
-        .form-group input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff; }
-        .admin-btn { background: #ffd700; color: #000; font-weight: bold; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-right: 10px; }
+        .admin-badge { background: gold; color: #000; padding: 2px 10px; border-radius: 5px; font-size: 0.8rem; display: none; margin-left: 10px; vertical-align: middle; }
+        .message { padding: 15px; border-radius: 8px; margin: 15px 0; display: none; }
+        .error { background: rgba(255, 65, 108, 0.2); color: #ff416c; border: 1px solid #ff416c; }
+        .success { background: rgba(0, 255, 157, 0.2); color: #00ff9d; border: 1px solid #00ff9d; }
+        .form-group input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff; margin-top: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>SparkPoint Short <span id="adminBadge" class="admin-badge">ADMIN</span></h1>
-            <div id="walletDisplay">Подключите кошелек</div>
+            <div id="statusText" class="sub-logo">Подключите кошелек для работы с системой</div>
         </header>
 
-        <div class="tabs">
-            <div class="tab active" onclick="openTab('userTab', this)">Личный кабинет</div>
-            <div class="tab" id="adminTabBtn" style="display:none;" onclick="openTab('adminTab', this)">Админ-панель</div>
+        <div id="authScreen">
+            <button class="connect-main-btn" id="connectBtn">
+                🔗 ПОДКЛЮЧИТЬ КОШЕЛЕК
+            </button>
         </div>
 
-        <div id="userTab" class="tab-content active">
-            <div class="dashboard">
-                <div class="panel">
-                    <h2>Статистика</h2>
-                    <div class="stat-card">
-                        <label>Ваш уровень</label>
-                        <div class="stat-value" id="uLevel">0 / 3</div>
-                    </div>
-                    <div class="stat-card">
-                        <label>Внутренний баланс</label>
-                        <div class="stat-value" id="uBalance">0.00 BNB</div>
-                    </div>
-                    <div class="stat-card">
-                        <label>Вас пригласил</label>
-                        <div style="font-size: 0.8rem; color: #00b8ff;" id="uReferrer">Нет данных</div>
-                    </div>
-                    <div class="stat-card">
-                        <label>Прямых рефералов</label>
-                        <div class="stat-value" id="uDirect">0 / 2</div>
-                    </div>
-                    
-                    <div class="form-group" style="margin-top:20px;">
-                        <label>Ваша реферальная ссылка:</label>
-                        <input type="text" id="uRefLink" readonly>
-                        <button class="connect-btn" onclick="copyRef()" style="width:100%; margin-top:10px;">Копировать</button>
-                    </div>
-                </div>
+        <div id="mainAppUI">
+            <div class="tabs">
+                <div class="tab active" onclick="openTab('userTab', this)">Личный кабинет</div>
+                <div class="tab" id="adminTabBtn" style="display:none;" onclick="openTab('adminTab', this)">Админ-панель</div>
+            </div>
 
-                <div class="panel">
-                    <h2>Прогресс уровней</h2>
-                    <div id="levelsList">
+            <div id="userTab" class="tab-content active">
+                <div class="dashboard">
+                    <div class="panel">
+                        <h2>Статистика</h2>
+                        <div class="stat-card">
+                            <label>Ваш уровень</label>
+                            <div class="stat-value" id="uLevel">0 / 3</div>
                         </div>
-                </div>
-            </div>
-
-            <div class="panel" id="regSection" style="display:none;">
-                <h2>Регистрация в системе</h2>
-                <p style="margin-bottom:15px; color:#8a9ba8;">Стоимость входа: 0.01 BNB</p>
-                <div class="form-group">
-                    <label>Адрес пригласителя:</label>
-                    <input type="text" id="regRefInput" placeholder="0x...">
-                </div>
-                <button class="connect-btn" onclick="actionRegister()" style="width:100%;">Зарегистрироваться</button>
-                <div id="regMsg" class="message"></div>
-            </div>
-        </div>
-
-        <div id="adminTab" class="tab-content">
-            <div class="panel" style="border-color: gold;">
-                <h2 style="color:gold;">Управление контрактом</h2>
-                <div class="form-group">
-                    <label>Баланс контракта:</label>
-                    <div class="stat-value" id="contractBalance">0.00 BNB</div>
-                </div>
-                <button class="admin-btn" onclick="actionWithdraw()">Вывести средства</button>
-                
-                <hr style="margin:25px 0; opacity:0.1;">
-                
-                <h3>Бесплатное добавление</h3>
-                <div class="form-group">
-                    <input type="text" id="admUserAddr" placeholder="Адрес нового участника" style="margin-bottom:10px;">
-                    <input type="text" id="admRefAddr" placeholder="Адрес пригласителя">
-                </div>
-                <button class="admin-btn" onclick="actionAdminAdd()">Добавить бесплатно</button>
-                <div id="admMsg" class="message"></div>
-            </div>
-
-            <div class="panel">
-                <h2>Поиск участника</h2>
-                <div class="form-group">
-                    <input type="text" id="searchAddr" placeholder="Введите 0x...">
-                </div>
-                <button class="connect-btn" onclick="actionSearch()">Найти данные</button>
-                <div id="searchResult" style="margin-top:20px; display:none; background:rgba(0,0,0,0.3); padding:15px; border-radius:10px;">
+                        <div class="stat-card">
+                            <label>Внутренний баланс</label>
+                            <div class="stat-value" id="uBalance">0.00 BNB</div>
+                        </div>
+                        <div class="stat-card">
+                            <label>Вас пригласил</label>
+                            <div id="uReferrer" style="font-size: 0.8rem; color: #00b8ff; word-break: break-all;">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <label>Рефералов (прямых)</label>
+                            <div class="stat-value" id="uDirect">0 / 2</div>
+                        </div>
+                        <div class="panel" style="margin-top:10px; padding:15px; background:rgba(0,184,255,0.05);">
+                            <label style="font-size:0.8rem; color:#8a9ba8;">Ваша ссылка:</label>
+                            <input type="text" id="uRefLink" readonly style="width:100%; background:transparent; border:none; color:#00ff9d; font-size:0.85rem; margin-top:5px;">
+                            <button onclick="copyRef()" style="width:100%; margin-top:10px; padding:8px; border-radius:8px; border:none; background:#00b8ff; color:#fff; cursor:pointer;">Копировать</button>
+                        </div>
                     </div>
+
+                    <div class="panel">
+                        <h2>Прогресс уровней</h2>
+                        <div id="levelsList"></div>
+                    </div>
+                </div>
+
+                <div class="panel" id="regSection" style="display:none;">
+                    <h2>Регистрация (0.01 BNB)</h2>
+                    <input type="text" id="regRefInput" placeholder="Адрес пригласителя (0x...)">
+                    <button class="connect-main-btn" onclick="actionRegister()" style="margin-top:15px;">Зарегистрироваться</button>
+                    <div id="regMsg" class="message"></div>
+                </div>
+            </div>
+
+            <div id="adminTab" class="tab-content">
+                <div class="panel" style="border-color: gold;">
+                    <h2 style="color:gold;">Админ-панель</h2>
+                    <p>Баланс контракта: <span id="contractBalance" class="stat-value" style="font-size:1.1rem;">0 BNB</span></p>
+                    <button onclick="actionWithdraw()" style="background:gold; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;">Вывести средства</button>
+                    <hr style="margin:20px 0; opacity:0.1;">
+                    <h3>Добавить бесплатно</h3>
+                    <input type="text" id="admUserAddr" placeholder="Адрес нового участника">
+                    <input type="text" id="admRefAddr" placeholder="Адрес пригласителя" style="margin-top:10px;">
+                    <button onclick="actionAdminAdd()" style="margin-top:10px; width:100%; padding:10px; background:#00ff9d; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Добавить</button>
+                    <div id="admMsg" class="message"></div>
+                </div>
+                <div class="panel">
+                    <h2>Поиск по адресу</h2>
+                    <input type="text" id="searchAddr" placeholder="0x...">
+                    <button onclick="actionSearch()" style="margin-top:10px; width:100%; padding:10px; background:#333; color:#fff; border:none; border-radius:8px; cursor:pointer;">Найти данные</button>
+                    <div id="searchResult" style="margin-top:15px; display:none; background:rgba(0,0,0,0.3); padding:15px; border-radius:10px;"></div>
+                </div>
             </div>
         </div>
-        
-        <button id="mainConnectBtn" class="connect-btn" style="width:100%; margin-top:20px;">Подключить кошелек</button>
     </div>
 
     <script>
@@ -147,46 +144,33 @@
             {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},
             {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"uint256","name":"currentLevel","type":"uint256"},{"internalType":"address","name":"hisReferrer","type":"address"},{"internalType":"uint256","name":"filledInCurrentLevel","type":"uint256"},{"internalType":"uint256","name":"neededForNextLevel","type":"uint256"},{"internalType":"uint256","name":"totalPersonalReferrals","type":"uint256"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"bool","name":"isRegistered","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"address","name":"referrer","type":"address"},{"internalType":"uint256","name":"referralsInLevel","type":"uint256"},{"internalType":"uint256","name":"totalDirectReferrals","type":"uint256"},{"internalType":"uint256","name":"internalBalance","type":"uint256"},{"internalType":"bool","name":"exists","type":"bool"}],"stateMutability":"view","type":"function"}
+            {"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"uint256","name":"currentLevel","type":"uint256"},{"internalType":"address","name":"hisReferrer","type":"address"},{"internalType":"uint256","name":"filledInCurrentLevel","type":"uint256"},{"internalType":"uint256","name":"neededForNextLevel","type":"uint256"},{"internalType":"uint256","name":"totalPersonalReferrals","type":"uint256"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"bool","name":"isRegistered","type":"bool"}],"stateMutability":"view","type":"function"}
         ];
 
         let web3, contract, userAccount;
         const THRESHOLDS = [0, 2, 6, 14];
 
-        window.addEventListener('load', async () => {
-            if (window.ethereum) {
+        document.getElementById('connectBtn').onclick = connect;
+
+        async function connect() {
+            if (!window.ethereum) return alert("Установите MetaMask!");
+            try {
                 web3 = new Web3(window.ethereum);
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAccount = accounts[0];
                 contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+                
+                // Переключаем UI
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('mainAppUI').style.display = 'block';
+                document.getElementById('statusText').innerText = "Активен: " + userAccount.substring(0,10) + "...";
+                
+                checkAdmin();
+                loadUserData();
                 
                 const urlParams = new URLSearchParams(window.location.search);
                 if(urlParams.has('ref')) document.getElementById('regRefInput').value = urlParams.get('ref');
-
-                document.getElementById('mainConnectBtn').onclick = connect;
-            }
-        });
-
-        async function connect() {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAccount = accounts[0];
-                document.getElementById('walletDisplay').innerText = "Активен: " + userAccount.substring(0,8) + "...";
-                document.getElementById('mainConnectBtn').style.display = 'none';
-                
-                const isAdmin = await checkAdmin();
-                loadUserData();
-                if(isAdmin) updateAdminStats();
-            } catch (e) { alert("Ошибка подключения"); }
-        }
-
-        async function checkAdmin() {
-            const adm = await contract.methods.admin().call();
-            if(adm.toLowerCase() === userAccount.toLowerCase()) {
-                document.getElementById('adminBadge').style.display = 'inline-block';
-                document.getElementById('adminTabBtn').style.display = 'block';
-                return true;
-            }
-            return false;
+            } catch (e) { console.error(e); }
         }
 
         async function loadUserData() {
@@ -198,7 +182,6 @@
                 document.getElementById('uReferrer').innerText = data.hisReferrer;
                 document.getElementById('uDirect').innerText = data.totalPersonalReferrals + " / 2";
                 document.getElementById('uRefLink').value = window.location.origin + window.location.pathname + "?ref=" + userAccount;
-                
                 renderLevels(data.currentLevel, data.filledInCurrentLevel);
             } else {
                 document.getElementById('regSection').style.display = 'block';
@@ -209,88 +192,45 @@
             const container = document.getElementById('levelsList');
             container.innerHTML = '';
             for(let i=1; i<=3; i++) {
-                const isPassed = i < current;
-                const isCurrent = i == current;
-                const count = isPassed ? THRESHOLDS[i] : (isCurrent ? filled : 0);
-                
-                container.innerHTML += `
-                    <div class="level-item">
-                        <div style="display:flex; justify-content:space-between;">
-                            <span>Уровень ${i}</span>
-                            <span>${count} / ${THRESHOLDS[i]}</span>
-                        </div>
-                        <div class="circles">
-                            ${Array.from({length: THRESHOLDS[i]}).map((_, idx) => 
-                                `<div class="circle ${idx < count ? 'active' : ''}"></div>`
-                            ).join('')}
-                        </div>
-                    </div>
-                `;
+                const count = (i < current) ? THRESHOLDS[i] : (i == current ? filled : 0);
+                container.innerHTML += `<div class="level-item">
+                    <div style="display:flex; justify-content:space-between"><span>Уровень ${i}</span><span>${count}/${THRESHOLDS[i]}</span></div>
+                    <div class="circles">${Array.from({length: THRESHOLDS[i]}).map((_, idx) => `<div class="circle ${idx < count ? 'active' : ''}"></div>`).join('')}</div>
+                </div>`;
             }
         }
 
-        // --- ДЕЙСТВИЯ ---
+        async function checkAdmin() {
+            const adm = await contract.methods.admin().call();
+            if(adm.toLowerCase() === userAccount.toLowerCase()) {
+                document.getElementById('adminBadge').style.display = 'inline-block';
+                document.getElementById('adminTabBtn').style.display = 'block';
+                const bal = await web3.eth.getBalance(CONTRACT_ADDRESS);
+                document.getElementById('contractBalance').innerText = web3.utils.fromWei(bal, 'ether') + " BNB";
+            }
+        }
 
         async function actionRegister() {
             const ref = document.getElementById('regRefInput').value;
-            showMsg('regMsg', 'Ожидание подтверждения...', 'success');
             try {
                 await contract.methods.register(ref).send({ from: userAccount, value: web3.utils.toWei('0.01', 'ether') });
                 location.reload();
-            } catch (e) { showMsg('regMsg', 'Ошибка или отмена', 'error'); }
-        }
-
-        async function actionAdminAdd() {
-            const u = document.getElementById('admUserAddr').value;
-            const r = document.getElementById('admRefAddr').value;
-            try {
-                await contract.methods.adminAddUser(u, r).send({ from: userAccount });
-                showMsg('admMsg', 'Пользователь добавлен!', 'success');
-            } catch (e) { showMsg('admMsg', 'Ошибка', 'error'); }
-        }
-
-        async function actionWithdraw() {
-            try {
-                await contract.methods.withdraw().send({ from: userAccount });
-                updateAdminStats();
-            } catch (e) { alert("Ошибка"); }
+            } catch (e) { alert("Ошибка транзакции"); }
         }
 
         async function actionSearch() {
             const addr = document.getElementById('searchAddr').value;
             if(!web3.utils.isAddress(addr)) return alert("Неверный адрес");
-            
-            const data = await contract.methods.getUserStatus(addr).call();
+            const d = await contract.methods.getUserStatus(addr).call();
             const res = document.getElementById('searchResult');
             res.style.display = 'block';
-            res.innerHTML = `
-                <p><b>Зарегистрирован:</b> ${data.isRegistered ? 'Да' : 'Нет'}</p>
-                <p><b>Уровень:</b> ${data.currentLevel}</p>
-                <p><b>Реферер:</b> ${data.hisReferrer}</p>
-                <p><b>Личных рефов:</b> ${data.totalPersonalReferrals}</p>
-                <p><b>Баланс:</b> ${web3.utils.fromWei(data.balance, 'ether')} BNB</p>
-            `;
+            res.innerHTML = `<p>Уровень: ${d.currentLevel}</p><p>Реферер: ${d.hisReferrer}</p><p>Баланс: ${web3.utils.fromWei(d.balance, 'ether')} BNB</p>`;
         }
 
-        // --- ВСПОМОГАТЕЛЬНОЕ ---
-
-        async function updateAdminStats() {
-            const bal = await web3.eth.getBalance(CONTRACT_ADDRESS);
-            document.getElementById('contractBalance').innerText = web3.utils.fromWei(bal, 'ether') + " BNB";
-        }
-
-        function openTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+        function openTab(id, el) {
+            document.querySelectorAll('.tab-content, .tab').forEach(x => x.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             el.classList.add('active');
-        }
-
-        function showMsg(id, text, type) {
-            const m = document.getElementById(id);
-            m.innerText = text;
-            m.style.display = 'block';
-            m.className = 'message ' + type;
         }
 
         function copyRef() {
@@ -302,3 +242,4 @@
     </script>
 </body>
 </html>
+
