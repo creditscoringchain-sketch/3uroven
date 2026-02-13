@@ -3,243 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SparkPoint Short - Dashboard</title>
+    <title>SparkPoint Short - Swiss Precision Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; }
         
-        /* Заголовок (Логотип) */
         header { text-align: center; margin-bottom: 30px; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        h1 { color: #00ff9d; font-size: 2.8rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
-        .sub-logo { color: #8a9ba8; font-size: 1.1rem; }
+        h1 { color: #00ff9d; font-size: 2.5rem; text-transform: uppercase; }
 
-        /* Экран входа (Центральная кнопка) */
-        #authScreen { text-align: center; padding: 50px 20px; }
-        .connect-main-btn { 
-            background: linear-gradient(45deg, #00ff9d, #00b8ff); 
-            color: #000; border: none; padding: 18px 40px; 
-            border-radius: 30px; font-weight: bold; font-size: 1.2rem;
-            cursor: pointer; transition: 0.3s; width: 100%; max-width: 400px;
-            box-shadow: 0 10px 20px rgba(0, 255, 157, 0.2);
-        }
-        .connect-main-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(0, 255, 157, 0.4); }
-
-        /* Основной интерфейс (СКРЫТ ПО УМОЛЧАНИЮ) */
+        /* Экраны */
+        #authScreen { text-align: center; padding: 40px 0; }
         #mainAppUI { display: none; }
 
-        /* Элементы панелей */
         .panel { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; }
-        .tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .tab { padding: 12px 25px; cursor: pointer; color: #8a9ba8; }
-        .tab.active { border-bottom: 3px solid #00ff9d; color: #00ff9d; font-weight: bold; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        
+        /* Кнопки */
+        .btn { background: linear-gradient(45deg, #00ff9d, #00b8ff); color: #000; border: none; padding: 15px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 157, 0.4); }
+
+        /* Поля ввода */
+        .form-group label { display: block; margin-bottom: 10px; color: #8a9ba8; }
+        .form-group input { width: 100%; padding: 15px; background: rgba(0,0,0,0.2); border: 2px solid #333; border-radius: 10px; color: #fff; font-size: 1rem; outline: none; transition: 0.3s; }
+        .form-group input:focus { border-color: #00ff9d; }
+        .ref-active { border-color: #00ff9d !important; background: rgba(0, 255, 157, 0.05) !important; }
 
         /* Статистика */
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
-        .stat-card { background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: center; }
-        .stat-value { font-size: 1.5rem; color: #00ff9d; font-weight: bold; }
-        
-        .level-item { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-        .circles { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .circle { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid #444; }
-        .circle.active { background: #00ff9d; box-shadow: 0 0 8px #00ff9d; border: none; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; text-align: center; }
+        .stat-val { display: block; font-size: 1.4rem; color: #00ff9d; font-weight: bold; }
 
-        .admin-badge { background: gold; color: #000; padding: 2px 10px; border-radius: 5px; font-size: 0.8rem; display: none; margin-left: 10px; vertical-align: middle; }
-        .message { padding: 15px; border-radius: 8px; margin: 15px 0; display: none; }
+        .message { padding: 15px; border-radius: 10px; margin-top: 15px; display: none; text-align: center; }
         .error { background: rgba(255, 65, 108, 0.2); color: #ff416c; border: 1px solid #ff416c; }
         .success { background: rgba(0, 255, 157, 0.2); color: #00ff9d; border: 1px solid #00ff9d; }
-        .form-group input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff; margin-top: 5px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>SparkPoint Short <span id="adminBadge" class="admin-badge">ADMIN</span></h1>
-            <div id="statusText" class="sub-logo">Подключите кошелек для работы с системой</div>
-        </header>
 
-        <div id="authScreen">
-            <button class="connect-main-btn" id="connectBtn">
-                🔗 ПОДКЛЮЧИТЬ КОШЕЛЕК
-            </button>
-        </div>
+<div class="container">
+    <header>
+        <h1>SparkPoint</h1>
+        <p id="topStatus">Требуется подключение кошелька</p>
+    </header>
 
-        <div id="mainAppUI">
-            <div class="tabs">
-                <div class="tab active" onclick="openTab('userTab', this)">Личный кабинет</div>
-                <div class="tab" id="adminTabBtn" style="display:none;" onclick="openTab('adminTab', this)">Админ-панель</div>
-            </div>
-
-            <div id="userTab" class="tab-content active">
-                <div class="dashboard">
-                    <div class="panel">
-                        <h2>Статистика</h2>
-                        <div class="stat-card">
-                            <label>Ваш уровень</label>
-                            <div class="stat-value" id="uLevel">0 / 3</div>
-                        </div>
-                        <div class="stat-card">
-                            <label>Внутренний баланс</label>
-                            <div class="stat-value" id="uBalance">0.00 BNB</div>
-                        </div>
-                        <div class="stat-card">
-                            <label>Вас пригласил</label>
-                            <div id="uReferrer" style="font-size: 0.8rem; color: #00b8ff; word-break: break-all;">-</div>
-                        </div>
-                        <div class="stat-card">
-                            <label>Рефералов (прямых)</label>
-                            <div class="stat-value" id="uDirect">0 / 2</div>
-                        </div>
-                        <div class="panel" style="margin-top:10px; padding:15px; background:rgba(0,184,255,0.05);">
-                            <label style="font-size:0.8rem; color:#8a9ba8;">Ваша ссылка:</label>
-                            <input type="text" id="uRefLink" readonly style="width:100%; background:transparent; border:none; color:#00ff9d; font-size:0.85rem; margin-top:5px;">
-                            <button onclick="copyRef()" style="width:100%; margin-top:10px; padding:8px; border-radius:8px; border:none; background:#00b8ff; color:#fff; cursor:pointer;">Копировать</button>
-                        </div>
-                    </div>
-
-                    <div class="panel">
-                        <h2>Прогресс уровней</h2>
-                        <div id="levelsList"></div>
-                    </div>
-                </div>
-
-                <div class="panel" id="regSection" style="display:none;">
-                    <h2>Регистрация (0.01 BNB)</h2>
-                    <input type="text" id="regRefInput" placeholder="Адрес пригласителя (0x...)">
-                    <button class="connect-main-btn" onclick="actionRegister()" style="margin-top:15px;">Зарегистрироваться</button>
-                    <div id="regMsg" class="message"></div>
-                </div>
-            </div>
-
-            <div id="adminTab" class="tab-content">
-                <div class="panel" style="border-color: gold;">
-                    <h2 style="color:gold;">Админ-панель</h2>
-                    <p>Баланс контракта: <span id="contractBalance" class="stat-value" style="font-size:1.1rem;">0 BNB</span></p>
-                    <button onclick="actionWithdraw()" style="background:gold; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;">Вывести средства</button>
-                    <hr style="margin:20px 0; opacity:0.1;">
-                    <h3>Добавить бесплатно</h3>
-                    <input type="text" id="admUserAddr" placeholder="Адрес нового участника">
-                    <input type="text" id="admRefAddr" placeholder="Адрес пригласителя" style="margin-top:10px;">
-                    <button onclick="actionAdminAdd()" style="margin-top:10px; width:100%; padding:10px; background:#00ff9d; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Добавить</button>
-                    <div id="admMsg" class="message"></div>
-                </div>
-                <div class="panel">
-                    <h2>Поиск по адресу</h2>
-                    <input type="text" id="searchAddr" placeholder="0x...">
-                    <button onclick="actionSearch()" style="margin-top:10px; width:100%; padding:10px; background:#333; color:#fff; border:none; border-radius:8px; cursor:pointer;">Найти данные</button>
-                    <div id="searchResult" style="margin-top:15px; display:none; background:rgba(0,0,0,0.3); padding:15px; border-radius:10px;"></div>
-                </div>
-            </div>
-        </div>
+    <div id="authScreen">
+        <button class="btn" onclick="connect()">ПОДКЛЮЧИТЬ МЕТАМАСК</button>
     </div>
 
-    <script>
-        const CONTRACT_ADDRESS = '0x2c52760504AF1a405A225631947a8BF604fA74b9';
-        const ABI = [
-            {"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"address","name":"_referrer","type":"address"}],"name":"adminAddUser","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},
-            {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"uint256","name":"currentLevel","type":"uint256"},{"internalType":"address","name":"hisReferrer","type":"address"},{"internalType":"uint256","name":"filledInCurrentLevel","type":"uint256"},{"internalType":"uint256","name":"neededForNextLevel","type":"uint256"},{"internalType":"uint256","name":"totalPersonalReferrals","type":"uint256"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"bool","name":"isRegistered","type":"bool"}],"stateMutability":"view","type":"function"}
-        ];
+    <div id="mainAppUI">
+        
+        <div id="regSection" class="panel" style="display:none;">
+            <h2>Регистрация</h2>
+            <p style="margin-bottom:20px; color:#8a9ba8;">Вход: 0.01 BNB</p>
+            <div class="form-group">
+                <label>Ваш пригласитель:</label>
+                <input type="text" id="referrerInput" placeholder="0x...">
+                <small id="refStatus" style="color:#00b8ff; display:block; margin-top:5px;"></small>
+            </div>
+            <button class="btn" style="margin-top:20px;" onclick="register()">ОПЛАТИТЬ И ВОЙТИ</button>
+            <div id="regMsg" class="message"></div>
+        </div>
 
-        let web3, contract, userAccount;
-        const THRESHOLDS = [0, 2, 6, 14];
+        <div id="dashboardSection" class="panel" style="display:none;">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <small>Уровень</small>
+                    <span class="stat-val" id="displayLevel">0/3</span>
+                </div>
+                <div class="stat-card">
+                    <small>Баланс</small>
+                    <span class="stat-val" id="displayBalance">0.00 BNB</span>
+                </div>
+            </div>
+            <div class="stat-card" style="margin-bottom:15px;">
+                <small>Кто вас пригласил</small>
+                <div id="displayUpline" style="font-size:0.8rem; margin-top:5px; color:#00b8ff;">-</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Ваша реф-ссылка:</label>
+                <input type="text" id="myRefLink" readonly>
+                <button class="btn" style="margin-top:10px; padding:10px;" onclick="copyLink()">КОПИРОВАТЬ ССЫЛКУ</button>
+            </div>
+        </div>
 
-        document.getElementById('connectBtn').onclick = connect;
+    </div>
+</div>
 
-        async function connect() {
-            if (!window.ethereum) return alert("Установите MetaMask!");
-            try {
-                web3 = new Web3(window.ethereum);
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAccount = accounts[0];
-                contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
-                
-                // Переключаем UI
-                document.getElementById('authScreen').style.display = 'none';
-                document.getElementById('mainAppUI').style.display = 'block';
-                document.getElementById('statusText').innerText = "Активен: " + userAccount.substring(0,10) + "...";
-                
-                checkAdmin();
-                loadUserData();
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                if(urlParams.has('ref')) document.getElementById('regRefInput').value = urlParams.get('ref');
-            } catch (e) { console.error(e); }
+<script>
+    const CONTRACT_ADDRESS = '0x2c52760504AF1a405A225631947a8BF604fA74b9';
+    const ABI = [
+        {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},
+        {"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"uint256","name":"currentLevel","type":"uint256"},{"internalType":"address","name":"hisReferrer","type":"address"},{"internalType":"uint256","name":"filledInCurrentLevel","type":"uint256"},{"internalType":"uint256","name":"neededForNextLevel","type":"uint256"},{"internalType":"uint256","name":"totalPersonalReferrals","type":"uint256"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"bool","name":"isRegistered","type":"bool"}],"stateMutability":"view","type":"function"}
+    ];
+
+    let web3, contract, userAccount;
+    let urlReferrer = '';
+
+    // При загрузке сразу проверяем ссылку
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('ref')) {
+            urlReferrer = params.get('ref');
+            console.log("Referrer detected in URL:", urlReferrer);
         }
+    };
 
-        async function loadUserData() {
-            const data = await contract.methods.getUserStatus(userAccount).call();
-            if(data.isRegistered) {
-                document.getElementById('regSection').style.display = 'none';
-                document.getElementById('uLevel').innerText = data.currentLevel + " / 3";
-                document.getElementById('uBalance').innerText = web3.utils.fromWei(data.balance, 'ether') + " BNB";
-                document.getElementById('uReferrer').innerText = data.hisReferrer;
-                document.getElementById('uDirect').innerText = data.totalPersonalReferrals + " / 2";
-                document.getElementById('uRefLink').value = window.location.origin + window.location.pathname + "?ref=" + userAccount;
-                renderLevels(data.currentLevel, data.filledInCurrentLevel);
-            } else {
-                document.getElementById('regSection').style.display = 'block';
+    async function connect() {
+        if (!window.ethereum) return alert("Нужен MetaMask!");
+        
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        userAccount = accounts[0];
+        contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('mainAppUI').style.display = 'block';
+        document.getElementById('topStatus').innerText = "Аккаунт: " + userAccount.substring(0,6) + "..." + userAccount.substring(38);
+
+        refreshData();
+    }
+
+    async function refreshData() {
+        const data = await contract.methods.getUserStatus(userAccount).call();
+        
+        if (data.isRegistered) {
+            // ПОЛЬЗОВАТЕЛЬ УЖЕ В СИСТЕМЕ
+            document.getElementById('regSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            
+            document.getElementById('displayLevel').innerText = data.currentLevel + "/3";
+            document.getElementById('displayBalance').innerText = web3.utils.fromWei(data.balance, 'ether') + " BNB";
+            document.getElementById('displayUpline').innerText = data.hisReferrer;
+            document.getElementById('myRefLink').value = window.location.origin + window.location.pathname + "?ref=" + userAccount;
+        } else {
+            // НОВЫЙ ПОЛЬЗОВАТЕЛЬ
+            document.getElementById('regSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+
+            // САМАЯ ВАЖНАЯ ЧАСТЬ: Вставляем реферера из ссылки
+            const input = document.getElementById('referrerInput');
+            if (web3.utils.isAddress(urlReferrer)) {
+                input.value = urlReferrer;
+                input.classList.add('ref-active');
+                document.getElementById('refStatus').innerText = "✓ Пригласитель определен по ссылке";
             }
         }
+    }
 
-        function renderLevels(current, filled) {
-            const container = document.getElementById('levelsList');
-            container.innerHTML = '';
-            for(let i=1; i<=3; i++) {
-                const count = (i < current) ? THRESHOLDS[i] : (i == current ? filled : 0);
-                container.innerHTML += `<div class="level-item">
-                    <div style="display:flex; justify-content:space-between"><span>Уровень ${i}</span><span>${count}/${THRESHOLDS[i]}</span></div>
-                    <div class="circles">${Array.from({length: THRESHOLDS[i]}).map((_, idx) => `<div class="circle ${idx < count ? 'active' : ''}"></div>`).join('')}</div>
-                </div>`;
-            }
+    async function register() {
+        const refAddr = document.getElementById('referrerInput').value;
+        const msg = document.getElementById('regMsg');
+        
+        if (!web3.utils.isAddress(refAddr)) {
+            showMsg('regMsg', 'Ошибка: Укажите корректный адрес пригласителя!', 'error');
+            return;
         }
 
-        async function checkAdmin() {
-            const adm = await contract.methods.admin().call();
-            if(adm.toLowerCase() === userAccount.toLowerCase()) {
-                document.getElementById('adminBadge').style.display = 'inline-block';
-                document.getElementById('adminTabBtn').style.display = 'block';
-                const bal = await web3.eth.getBalance(CONTRACT_ADDRESS);
-                document.getElementById('contractBalance').innerText = web3.utils.fromWei(bal, 'ether') + " BNB";
-            }
-        }
+        showMsg('regMsg', 'Транзакция отправлена. Ждите подтверждения...', 'success');
 
-        async function actionRegister() {
-            const ref = document.getElementById('regRefInput').value;
-            try {
-                await contract.methods.register(ref).send({ from: userAccount, value: web3.utils.toWei('0.01', 'ether') });
-                location.reload();
-            } catch (e) { alert("Ошибка транзакции"); }
+        try {
+            await contract.methods.register(refAddr).send({
+                from: userAccount,
+                value: web3.utils.toWei('0.01', 'ether')
+            });
+            location.reload(); // Перезагружаем после успеха
+        } catch (e) {
+            showMsg('regMsg', 'Ошибка транзакции: ' + e.message, 'error');
         }
+    }
 
-        async function actionSearch() {
-            const addr = document.getElementById('searchAddr').value;
-            if(!web3.utils.isAddress(addr)) return alert("Неверный адрес");
-            const d = await contract.methods.getUserStatus(addr).call();
-            const res = document.getElementById('searchResult');
-            res.style.display = 'block';
-            res.innerHTML = `<p>Уровень: ${d.currentLevel}</p><p>Реферер: ${d.hisReferrer}</p><p>Баланс: ${web3.utils.fromWei(d.balance, 'ether')} BNB</p>`;
-        }
+    function showMsg(id, text, type) {
+        const el = document.getElementById(id);
+        el.innerText = text;
+        el.className = 'message ' + type;
+        el.style.display = 'block';
+    }
 
-        function openTab(id, el) {
-            document.querySelectorAll('.tab-content, .tab').forEach(x => x.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            el.classList.add('active');
-        }
+    function copyLink() {
+        const copyText = document.getElementById("myRefLink");
+        copyText.select();
+        document.execCommand("copy");
+        alert("Ссылка скопирована!");
+    }
+</script>
 
-        function copyRef() {
-            const copyText = document.getElementById("uRefLink");
-            copyText.select();
-            document.execCommand("copy");
-            alert("Ссылка скопирована!");
-        }
-    </script>
 </body>
 </html>
-
