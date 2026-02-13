@@ -3,189 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SparkPoint Short - Swiss Precision Edition</title>
+    <title>SparkPoint Short - FINAL</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; min-height: 100vh; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
+        :root { --primary: #00ff9d; --bg: #0f172a; --card: #1e293b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg); color: #fff; line-height: 1.6; }
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
         
-        header { text-align: center; margin-bottom: 30px; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        h1 { color: #00ff9d; font-size: 2.5rem; text-transform: uppercase; }
+        .header { text-align: center; padding: 40px 0; background: var(--card); border-radius: 20px; margin-bottom: 20px; border: 1px solid #334155; }
+        h1 { color: var(--primary); font-size: 2rem; letter-spacing: -1px; }
 
-        /* Экраны */
-        #authScreen { text-align: center; padding: 40px 0; }
-        #mainAppUI { display: none; }
+        .btn { 
+            width: 100%; padding: 16px; border-radius: 12px; border: none; 
+            background: linear-gradient(90deg, #00ff9d, #0ea5e9); color: #000; 
+            font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1rem;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:hover:not(:disabled) { transform: scale(1.02); }
 
-        .panel { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; }
-        
-        /* Кнопки */
-        .btn { background: linear-gradient(45deg, #00ff9d, #00b8ff); color: #000; border: none; padding: 15px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 157, 0.4); }
+        .panel { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-bottom: 20px; display: none; }
+        .active { display: block !important; }
 
-        /* Поля ввода */
-        .form-group label { display: block; margin-bottom: 10px; color: #8a9ba8; }
-        .form-group input { width: 100%; padding: 15px; background: rgba(0,0,0,0.2); border: 2px solid #333; border-radius: 10px; color: #fff; font-size: 1rem; outline: none; transition: 0.3s; }
-        .form-group input:focus { border-color: #00ff9d; }
-        .ref-active { border-color: #00ff9d !important; background: rgba(0, 255, 157, 0.05) !important; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 5px; }
+        .input-group input { 
+            width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #334155; 
+            background: #0f172a; color: #fff; outline: none; 
+        }
+        .input-group input:read-only { background: #1e293b; color: var(--primary); border-color: var(--primary); }
 
-        /* Статистика */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; text-align: center; }
-        .stat-val { display: block; font-size: 1.4rem; color: #00ff9d; font-weight: bold; }
-
-        .message { padding: 15px; border-radius: 10px; margin-top: 15px; display: none; text-align: center; }
-        .error { background: rgba(255, 65, 108, 0.2); color: #ff416c; border: 1px solid #ff416c; }
-        .success { background: rgba(0, 255, 157, 0.2); color: #00ff9d; border: 1px solid #00ff9d; }
+        .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; }
+        .stat-row:last-child { border: none; }
+        .success-text { color: var(--primary); font-weight: bold; }
+        .error-msg { background: #ef444433; color: #ef4444; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 0.8rem; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>SparkPoint</h1>
-        <p id="topStatus">Требуется подключение кошелька</p>
-    </header>
-
-    <div id="authScreen">
-        <button class="btn" onclick="connect()">ПОДКЛЮЧИТЬ МЕТАМАСК</button>
+    <div class="header">
+        <h1>SparkPoint <span style="font-size: 0.8rem; vertical-align: middle; opacity: 0.6;">SHORT</span></h1>
+        <p id="walletStatus" style="font-size: 0.8rem; color: #94a3b8; margin-top: 10px;">Кошелек не подключен</p>
     </div>
 
-    <div id="mainAppUI">
+    <button id="connectBtn" class="btn">ПОДКЛЮЧИТЬ КОШЕЛЕК</button>
+
+    <div id="regPanel" class="panel">
+        <h3 style="margin-bottom: 15px;">Регистрация (0.01 BNB)</h3>
+        <div class="input-group">
+            <label>Ваш пригласитель (автоматически):</label>
+            <input type="text" id="refInput" placeholder="0x..." readonly>
+        </div>
+        <button id="regBtn" class="btn">ОПЛАТИТЬ И ВСТУПИТЬ</button>
+        <div id="regError" class="error-msg"></div>
+    </div>
+
+    <div id="userPanel" class="panel">
+        <h3 style="margin-bottom: 15px;">Личный кабинет</h3>
+        <div class="stat-row"><span>Ваш уровень:</span> <span id="statLevel" class="success-text">0 / 3</span></div>
+        <div class="stat-row"><span>Ваш баланс:</span> <span id="statBalance" class="success-text">0.00 BNB</span></div>
+        <div class="stat-row"><span>Реферер:</span> <span id="statUpline" style="font-size: 0.7rem; color: #38bdf8;">-</span></div>
         
-        <div id="regSection" class="panel" style="display:none;">
-            <h2>Регистрация</h2>
-            <p style="margin-bottom:20px; color:#8a9ba8;">Вход: 0.01 BNB</p>
-            <div class="form-group">
-                <label>Ваш пригласитель:</label>
-                <input type="text" id="referrerInput" placeholder="0x...">
-                <small id="refStatus" style="color:#00b8ff; display:block; margin-top:5px;"></small>
-            </div>
-            <button class="btn" style="margin-top:20px;" onclick="register()">ОПЛАТИТЬ И ВОЙТИ</button>
-            <div id="regMsg" class="message"></div>
+        <div class="input-group" style="margin-top: 20px;">
+            <label>Ваша ссылка для приглашения:</label>
+            <input type="text" id="shareLink" readonly onclick="this.select(); document.execCommand('copy'); alert('Скопировано!');">
+            <p style="font-size: 0.7rem; color: #64748b; margin-top: 5px;">Нажмите на поле, чтобы скопировать</p>
         </div>
-
-        <div id="dashboardSection" class="panel" style="display:none;">
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <small>Уровень</small>
-                    <span class="stat-val" id="displayLevel">0/3</span>
-                </div>
-                <div class="stat-card">
-                    <small>Баланс</small>
-                    <span class="stat-val" id="displayBalance">0.00 BNB</span>
-                </div>
-            </div>
-            <div class="stat-card" style="margin-bottom:15px;">
-                <small>Кто вас пригласил</small>
-                <div id="displayUpline" style="font-size:0.8rem; margin-top:5px; color:#00b8ff;">-</div>
-            </div>
-            
-            <div class="form-group">
-                <label>Ваша реф-ссылка:</label>
-                <input type="text" id="myRefLink" readonly>
-                <button class="btn" style="margin-top:10px; padding:10px;" onclick="copyLink()">КОПИРОВАТЬ ССЫЛКУ</button>
-            </div>
-        </div>
-
     </div>
 </div>
 
 <script>
-    const CONTRACT_ADDRESS = '0x2c52760504AF1a405A225631947a8BF604fA74b9';
-    const ABI = [
-        {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},
-        {"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"uint256","name":"currentLevel","type":"uint256"},{"internalType":"address","name":"hisReferrer","type":"address"},{"internalType":"uint256","name":"filledInCurrentLevel","type":"uint256"},{"internalType":"uint256","name":"neededForNextLevel","type":"uint256"},{"internalType":"uint256","name":"totalPersonalReferrals","type":"uint256"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"bool","name":"isRegistered","type":"bool"}],"stateMutability":"view","type":"function"}
-    ];
+    const CONTRACT_ADDR = "0x2c52760504AF1a405A225631947a8BF604fA74b9";
+    const ABI = [{"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"uint256","name":"currentLevel","type":"uint256"},{"internalType":"address","name":"hisReferrer","type":"address"},{"internalType":"uint256","name":"filledInCurrentLevel","type":"uint256"},{"internalType":"uint256","name":"neededForNextLevel","type":"uint256"},{"internalType":"uint256","name":"totalPersonalReferrals","type":"uint256"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"bool","name":"isRegistered","type":"bool"}],"stateMutability":"view","type":"function"}];
 
     let web3, contract, userAccount;
-    let urlReferrer = '';
 
-    // При загрузке сразу проверяем ссылку
-    window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('ref')) {
-            urlReferrer = params.get('ref');
-            console.log("Referrer detected in URL:", urlReferrer);
+    // 1. ЗАХВАТ РЕФЕРАЛА (СРАЗУ ПРИ ЗАГРУЗКЕ)
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get('ref');
+        if (ref && Web3.utils.isAddress(ref)) {
+            localStorage.setItem('sp_referrer', ref);
+            console.log("Реферер сохранен:", ref);
         }
-    };
+    });
 
-    async function connect() {
-        if (!window.ethereum) return alert("Нужен MetaMask!");
+    // 2. ПОДКЛЮЧЕНИЕ
+    document.getElementById('connectBtn').onclick = async () => {
+        if (!window.ethereum) return alert("MetaMask не найден");
         
         web3 = new Web3(window.ethereum);
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         userAccount = accounts[0];
-        contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+        contract = new web3.eth.Contract(ABI, CONTRACT_ADDR);
 
-        document.getElementById('authScreen').style.display = 'none';
-        document.getElementById('mainAppUI').style.display = 'block';
-        document.getElementById('topStatus').innerText = "Аккаунт: " + userAccount.substring(0,6) + "..." + userAccount.substring(38);
-
-        refreshData();
-    }
-
-    async function refreshData() {
-        const data = await contract.methods.getUserStatus(userAccount).call();
+        document.getElementById('connectBtn').style.display = 'none';
+        document.getElementById('walletStatus').innerText = "Адрес: " + userAccount.slice(0,6) + "..." + userAccount.slice(-4);
         
-        if (data.isRegistered) {
-            // ПОЛЬЗОВАТЕЛЬ УЖЕ В СИСТЕМЕ
-            document.getElementById('regSection').style.display = 'none';
-            document.getElementById('dashboardSection').style.display = 'block';
+        initApp();
+    };
+
+    async function initApp() {
+        try {
+            const status = await contract.methods.getUserStatus(userAccount).call();
             
-            document.getElementById('displayLevel').innerText = data.currentLevel + "/3";
-            document.getElementById('displayBalance').innerText = web3.utils.fromWei(data.balance, 'ether') + " BNB";
-            document.getElementById('displayUpline').innerText = data.hisReferrer;
-            document.getElementById('myRefLink').value = window.location.origin + window.location.pathname + "?ref=" + userAccount;
-        } else {
-            // НОВЫЙ ПОЛЬЗОВАТЕЛЬ
-            document.getElementById('regSection').style.display = 'block';
-            document.getElementById('dashboardSection').style.display = 'none';
-
-            // САМАЯ ВАЖНАЯ ЧАСТЬ: Вставляем реферера из ссылки
-            const input = document.getElementById('referrerInput');
-            if (web3.utils.isAddress(urlReferrer)) {
-                input.value = urlReferrer;
-                input.classList.add('ref-active');
-                document.getElementById('refStatus').innerText = "✓ Пригласитель определен по ссылке";
+            if (status.isRegistered) {
+                showPanel('userPanel');
+                document.getElementById('statLevel').innerText = status.currentLevel + " / 3";
+                document.getElementById('statBalance').innerText = web3.utils.fromWei(status.balance, 'ether') + " BNB";
+                document.getElementById('statUpline').innerText = status.hisReferrer;
+                document.getElementById('shareLink').value = window.location.origin + window.location.pathname + "?ref=" + userAccount;
+            } else {
+                showPanel('regPanel');
+                // Достаем реферера из памяти
+                let savedRef = localStorage.getItem('sp_referrer') || "0x0000000000000000000000000000000000000000";
+                document.getElementById('refInput').value = savedRef;
             }
+        } catch (e) {
+            console.error(e);
         }
     }
 
-    async function register() {
-        const refAddr = document.getElementById('referrerInput').value;
-        const msg = document.getElementById('regMsg');
-        
-        if (!web3.utils.isAddress(refAddr)) {
-            showMsg('regMsg', 'Ошибка: Укажите корректный адрес пригласителя!', 'error');
-            return;
-        }
-
-        showMsg('regMsg', 'Транзакция отправлена. Ждите подтверждения...', 'success');
+    // 3. РЕГИСТРАЦИЯ
+    document.getElementById('regBtn').onclick = async () => {
+        const ref = document.getElementById('refInput').value;
+        const errBox = document.getElementById('regError');
+        errBox.style.display = 'none';
 
         try {
-            await contract.methods.register(refAddr).send({
+            await contract.methods.register(ref).send({
                 from: userAccount,
                 value: web3.utils.toWei('0.01', 'ether')
             });
-            location.reload(); // Перезагружаем после успеха
+            location.reload();
         } catch (e) {
-            showMsg('regMsg', 'Ошибка транзакции: ' + e.message, 'error');
+            errBox.innerText = "Ошибка транзакции. Проверьте баланс.";
+            errBox.style.display = 'block';
         }
+    };
+
+    function showPanel(id) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     }
 
-    function showMsg(id, text, type) {
-        const el = document.getElementById(id);
-        el.innerText = text;
-        el.className = 'message ' + type;
-        el.style.display = 'block';
-    }
-
-    function copyLink() {
-        const copyText = document.getElementById("myRefLink");
-        copyText.select();
-        document.execCommand("copy");
-        alert("Ссылка скопирована!");
+    // Слушаем смену аккаунта
+    if(window.ethereum) {
+        window.ethereum.on('accountsChanged', () => location.reload());
+        window.ethereum.on('chainChanged', () => location.reload());
     }
 </script>
 
