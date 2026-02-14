@@ -3,126 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SparkPoint - Полная Версия</title>
+    <title>SparkPoint - Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
-        :root {
-            --primary: #00ff9d;
-            --secondary: #00b8ff;
-            --admin-color: #ffd700;
-            --bg-dark: #1a1a2e;
-            --panel-bg: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: linear-gradient(135deg, #1a1a2e 0%, #0f1525 100%); color: #fff; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        :root { --primary: #00ff9d; --secondary: #00b8ff; --admin: #ffd700; --bg: #1a1a2e; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
         
-        /* Header */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: var(--panel-bg); border-radius: 15px; margin-bottom: 30px; border: 1px solid var(--border); }
-        h1 { color: var(--primary); font-size: 1.8rem; }
-        .connect-btn { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #000; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        /* Кнопки */
+        .btn { padding: 12px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-connect { background: var(--primary); color: #000; }
+        .btn-reg { background: var(--secondary); color: #fff; width: 100%; font-size: 1.1rem; }
+        .btn-admin { background: var(--admin); color: #000; }
         
-        /* Stats Grid */
-        .status-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .card { background: var(--panel-bg); padding: 20px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
-        .card-value { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-top: 5px; }
-        .card-label { color: #888; font-size: 0.9rem; }
-
-        /* Admin Panel */
-        #adminSection { display: none; border: 2px solid var(--admin-color); background: rgba(255, 215, 0, 0.05); padding: 20px; border-radius: 15px; margin-bottom: 30px; }
-        .admin-title { color: var(--admin-color); font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        .admin-row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .admin-input { padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--admin-color); color: white; border-radius: 5px; flex: 1; }
-        .admin-btn { background: var(--admin-color); color: black; font-weight: bold; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        .admin-btn:hover { opacity: 0.8; }
-
-        /* Registration & User Panel */
-        #registrationSection, #dashboardSection { display: none; background: var(--panel-bg); padding: 25px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
-        .reg-input { padding: 12px; width: 100%; max-width: 400px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: rgba(0,0,0,0.3); color: white; }
-        .main-btn { background: var(--primary); color: black; padding: 12px 40px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
-
-        /* Levels Visuals */
-        .level-row { background: rgba(0,0,0,0.2); padding: 15px; margin: 10px 0; border-radius: 10px; text-align: left; }
-        .circles { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-        .circle { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; border: 1px solid #555; }
-        .circle.filled { background: var(--primary); color: black; border-color: var(--primary); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff; box-sizing: border-box; }
         
-        .msg-box { padding: 10px; margin-top: 10px; display: none; border-radius: 5px; }
-        .error { background: rgba(255, 0, 0, 0.2); color: #ff6b6b; }
-        .success { background: rgba(0, 255, 0, 0.2); color: #00ff9d; }
+        #adminSection { border: 2px solid var(--admin); display: none; }
+        #dashboardSection { display: none; }
+        #registrationSection { display: block; } /* По умолчанию виден */
+        
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; text-align: center; }
+        .label { color: #888; font-size: 0.8rem; }
+        .value { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>SparkPoint <span id="adminBadge" style="display:none; font-size:0.8rem; background:gold; color:black; padding:2px 8px; border-radius:10px;">ADMIN</span></h1>
-        <button id="connectBtn" class="connect-btn">Подключить кошелек</button>
-        <div id="walletDisplay" style="display:none;"></div>
-    </header>
-
-    <div id="adminSection">
-        <div class="admin-title">Панель Администратора</div>
-        
-        <div class="admin-row" style="align-items: center; justify-content: space-between;">
-            <div>
-                <span style="color:#aaa;">Баланс контракта:</span>
-                <span id="contractBalance" style="font-size:1.5rem; color:gold; margin-left:10px;">0 BNB</span>
-            </div>
-            <button class="admin-btn" onclick="withdrawFunds()">ВЫВЕСТИ ВСЁ</button>
-        </div>
-        
-        <hr style="border-color: rgba(255,215,0,0.2); margin: 15px 0;">
-
-        <div style="margin-bottom: 10px; color: #aaa;">Бесплатное добавление участника:</div>
-        <div class="admin-row">
-            <input type="text" id="adminUserAddr" class="admin-input" placeholder="Адрес Нового Участника">
-            <input type="text" id="adminRefAddr" class="admin-input" placeholder="Адрес Пригласителя">
-            <button class="admin-btn" onclick="adminAddUser()">ДОБАВИТЬ БЕСПЛАТНО</button>
-        </div>
-        <div id="adminMsg" class="msg-box"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2>SparkPoint</h2>
+        <button id="connectBtn" class="btn btn-connect" onclick="connect()">Подключить кошелек</button>
+        <div id="walletAddr" style="display:none; color:var(--primary)"></div>
     </div>
 
-    <div class="status-panel">
-        <div class="card">
-            <div class="card-label">Уровень</div>
-            <div class="card-value" id="userLevel">-</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Баланс (Credit)</div>
-            <div class="card-value" id="userBalance">0</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Рефералы</div>
-            <div class="card-value" id="userRefs">0 / 2</div>
-        </div>
+    <div id="adminSection" class="card">
+        <h3 style="color:var(--admin)">АДМИН-ПАНЕЛЬ</h3>
+        <p>Баланс контракта: <span id="contractBal" style="color:var(--admin)">0 BNB</span></p>
+        <button class="btn btn-admin" onclick="withdraw()">ВЫВЕСТИ ВСЕ</button>
+        <hr style="margin:15px 0; opacity:0.2;">
+        <input type="text" id="admUser" placeholder="Адрес нового юзера">
+        <input type="text" id="admRef" placeholder="Адрес пригласителя">
+        <button class="btn btn-admin" onclick="adminAdd()">ДОБАВИТЬ БЕСПЛАТНО</button>
     </div>
 
-    <div id="registrationSection">
-        <h2>Регистрация</h2>
-        <p style="color:#888; margin-bottom:15px;">Цена: 0.01 BNB</p>
-        <input type="text" id="regRefInput" class="reg-input" placeholder="Адрес пригласителя (0x...)" />
-        <br>
-        <button class="main-btn" onclick="registerUser()">Оплатить 0.01 BNB</button>
-        <div id="regMsg" class="msg-box"></div>
+    <div class="stat-grid">
+        <div class="stat-box"><div class="label">Уровень</div><div id="uLevel" class="value">-</div></div>
+        <div class="stat-box"><div class="label">Баланс (BNB)</div><div id="uBalance" class="value">0</div></div>
     </div>
 
-    <div id="dashboardSection">
-        <h3>Ваша реферальная ссылка</h3>
-        <input type="text" id="myRefLink" class="reg-input" readonly style="cursor:pointer;" onclick="this.select(); document.execCommand('copy'); alert('Скопировано!');">
-        
-        <h3 style="margin-top:20px; text-align:left;">Ваш прогресс</h3>
-        <div id="levelsContainer"></div>
+    <div id="registrationSection" class="card">
+        <h3>Регистрация</h3>
+        <p style="font-size:0.9rem; color:#888;">Цена входа: 0.01 BNB</p>
+        <input type="text" id="refInput" placeholder="Адрес пригласителя (0x...)">
+        <button class="btn btn-reg" onclick="register()">ОПЛАТИТЬ 0.01 BNB</button>
+    </div>
+
+    <div id="dashboardSection" class="card">
+        <h3>Ваша ссылка</h3>
+        <input type="text" id="refLink" readonly onclick="this.select(); document.execCommand('copy'); alert('Скопировано')">
+        <p style="color:var(--primary); margin-top:10px;">✓ Вы уже зарегистрированы</p>
     </div>
 </div>
 
 <script>
-    const CONTRACT_ADDRESS = '0x2c52760504AF1a405A225631947a8BF604fA74b9';
-    
-    // ПОЛНЫЙ ABI (Включая админские функции и withdraw)
+    const ADDR = '0x2c52760504AF1a405A225631947a8BF604fA74b9';
     const ABI = [
-        {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
         {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
         {"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"address","name":"_referrer","type":"address"}],"name":"adminAddUser","outputs":[],"stateMutability":"nonpayable","type":"function"},
         {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -130,147 +77,70 @@
         {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"}
     ];
 
-    let web3, contract, userAccount;
-    const LEVELS = [0, 2, 6, 14]; // Пороги
-
-    window.addEventListener('load', async () => {
-        // Проверка рефки в URL
-        const params = new URLSearchParams(window.location.search);
-        if(params.get('ref')) document.getElementById('regRefInput').value = params.get('ref');
-
-        if (window.ethereum) {
-            web3 = new Web3(window.ethereum);
-            contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
-            document.getElementById('connectBtn').addEventListener('click', connect);
-        } else {
-            alert('Нужен MetaMask!');
-        }
-    });
+    let web3, contract, account;
 
     async function connect() {
+        if (!window.ethereum) return alert("Нужен MetaMask");
+        web3 = new Web3(window.ethereum);
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        userAccount = accounts[0];
+        account = accounts[0];
+        contract = new web3.eth.Contract(ABI, ADDR);
+
         document.getElementById('connectBtn').style.display = 'none';
-        document.getElementById('walletDisplay').innerText = userAccount.substring(0,6)+'...';
-        document.getElementById('walletDisplay').style.display = 'block';
-        
-        await checkAdmin(); // Проверяем админ ли это
-        await loadData();   // Грузим данные юзера
+        document.getElementById('walletAddr').innerText = account.slice(0,6)+'...'+account.slice(-4);
+        document.getElementById('walletAddr').style.display = 'block';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('ref')) document.getElementById('refInput').value = urlParams.get('ref');
+
+        loadData();
     }
 
-    // --- АДМИНСКАЯ ЛОГИКА ---
-    async function checkAdmin() {
-        try {
-            const adminAddr = await contract.methods.admin().call();
-            if (userAccount.toLowerCase() === adminAddr.toLowerCase()) {
-                document.getElementById('adminSection').style.display = 'block';
-                document.getElementById('adminBadge').style.display = 'inline';
-                
-                // Грузим баланс контракта
-                const bal = await web3.eth.getBalance(CONTRACT_ADDRESS);
-                document.getElementById('contractBalance').innerText = web3.utils.fromWei(bal, 'ether') + ' BNB';
-            }
-        } catch(e) { console.error("Admin check fail", e); }
-    }
-
-    async function adminAddUser() {
-        const user = document.getElementById('adminUserAddr').value;
-        const ref = document.getElementById('adminRefAddr').value;
-        const msg = document.getElementById('adminMsg');
-        
-        try {
-            await contract.methods.adminAddUser(user, ref).send({from: userAccount});
-            msg.innerText = "Успешно добавлено!";
-            msg.className = "msg-box success";
-            msg.style.display = "block";
-        } catch(e) {
-            msg.innerText = "Ошибка: " + e.message;
-            msg.className = "msg-box error";
-            msg.style.display = "block";
-        }
-    }
-
-    async function withdrawFunds() {
-        try {
-            await contract.methods.withdraw().send({from: userAccount});
-            alert("Средства выведены!");
-            location.reload();
-        } catch(e) { alert("Ошибка вывода: " + e.message); }
-    }
-
-    // --- ПОЛЬЗОВАТЕЛЬСКАЯ ЛОГИКА ---
     async function loadData() {
-        const data = await contract.methods.getUserStatus(userAccount).call();
-        const isReg = data.isRegistered;
+        const data = await contract.methods.getUserStatus(account).call();
+        const isAdmin = (account.toLowerCase() === (await contract.methods.admin().call()).toLowerCase());
 
-        // Заполняем статы
-        document.getElementById('userLevel').innerText = isReg ? data.currentLevel : "-";
-        document.getElementById('userBalance').innerText = parseFloat(web3.utils.fromWei(data.balance, 'ether')).toFixed(4);
-        document.getElementById('userRefs').innerText = isReg ? `${data.totalPersonalReferrals} / 2` : "0 / 2";
+        if (isAdmin) {
+            document.getElementById('adminSection').style.display = 'block';
+            const b = await web3.eth.getBalance(ADDR);
+            document.getElementById('contractBal').innerText = web3.utils.fromWei(b, 'ether') + ' BNB';
+        }
 
-        if (isReg) {
-            // Если уже есть: показываем дашборд, скрываем регу
+        if (data.isRegistered) {
             document.getElementById('registrationSection').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'block';
-            
-            // Ссылка
-            const url = window.location.href.split('?')[0];
-            document.getElementById('myRefLink').value = `${url}?ref=${userAccount}`;
-            
-            // Рисуем уровни
-            renderLevels(parseInt(data.currentLevel), parseInt(data.filledInCurrentLevel));
-        } else {
-            // Если нет: показываем регу
-            document.getElementById('registrationSection').style.display = 'block';
-            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('uLevel').innerText = data.currentLevel;
+            document.getElementById('uBalance').innerText = web3.utils.fromWei(data.balance, 'ether');
+            document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + account;
         }
     }
 
-    async function registerUser() {
-        const ref = document.getElementById('regRefInput').value;
-        const msg = document.getElementById('regMsg');
-        
-        if (!web3.utils.isAddress(ref)) return alert("Неверный адрес пригласителя");
-        
+    async function register() {
+        const ref = document.getElementById('refInput').value;
+        if(!web3.utils.isAddress(ref)) return alert("Укажите адрес пригласителя");
         try {
-            await contract.methods.register(ref).send({
-                from: userAccount, 
-                value: '10000000000000000' // 0.01 BNB
-            });
-            msg.innerText = "Успешно! Обновите страницу.";
-            msg.className = "msg-box success";
-            msg.style.display = "block";
-            setTimeout(() => location.reload(), 2000);
-        } catch(e) {
-            let err = e.message;
-            if(err.includes("Already registered")) err = "Вы уже зарегистрированы!";
-            msg.innerText = err;
-            msg.className = "msg-box error";
-            msg.style.display = "block";
-        }
+            await contract.methods.register(ref).send({ from: account, value: web3.utils.toWei('0.01', 'ether') });
+            location.reload();
+        } catch(e) { alert("Ошибка: " + e.message); }
     }
 
-    function renderLevels(currLvl, filled) {
-        const cont = document.getElementById('levelsContainer');
-        cont.innerHTML = "";
-        for(let i=1; i<=3; i++) {
-            const max = LEVELS[i];
-            let done = 0;
-            if(i < currLvl) done = max;
-            else if(i === currLvl) done = filled;
-            
-            let html = `<div class="level-row">
-                <div style="font-weight:bold; margin-bottom:5px;">Уровень ${i} (${done}/${max})</div>
-                <div class="circles">`;
-            
-            for(let j=0; j<max; j++) {
-                html += `<div class="circle ${j<done ? 'filled' : ''}">${j<done ? '✓' : j+1}</div>`;
-            }
-            html += `</div></div>`;
-            cont.innerHTML += html;
-        }
+    async function adminAdd() {
+        const u = document.getElementById('admUser').value;
+        const r = document.getElementById('admRef').value;
+        try {
+            await contract.methods.adminAddUser(u, r).send({ from: account });
+            alert("Готово");
+            loadData();
+        } catch(e) { alert(e.message); }
+    }
+
+    async function withdraw() {
+        try {
+            await contract.methods.withdraw().send({ from: account });
+            alert("Выведено");
+            loadData();
+        } catch(e) { alert(e.message); }
     }
 </script>
-
 </body>
 </html>
