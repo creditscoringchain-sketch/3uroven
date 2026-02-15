@@ -26,7 +26,7 @@
         }
         .container { max-width: 500px; margin: 0 auto; }
 
-        /* --- NEW HEADER DESIGN --- */
+        /* --- HEADER --- */
         header { 
             display: flex; justify-content: space-between; align-items: center; 
             margin-bottom: 25px; 
@@ -73,12 +73,12 @@
         }
         .hidden { display: none; }
 
-        /* --- NEW STATS GRID DESIGN --- */
+        /* --- STATS GRID (UPDATED FOR 3 COLUMNS) --- */
         .stat-grid { 
             display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 15px; 
-            background: transparent; /* Override card bg for this wrapper */
+            grid-template-columns: 1fr 1fr 1fr; /* 3 колонки */
+            gap: 10px; 
+            background: transparent; 
             padding: 0;
             border: none;
             box-shadow: none;
@@ -86,8 +86,8 @@
         .stat-box {
             background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 20px;
+            padding: 15px 10px;
+            border-radius: 18px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -95,16 +95,16 @@
         }
         .stat-box:active { transform: scale(0.98); }
         .stat-box::before {
-            content: ''; position: absolute; top:0; left:0; width: 100%; height: 4px;
+            content: ''; position: absolute; top:0; left:0; width: 100%; height: 3px;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
         .stat-val { 
-            font-size: 1.8rem; font-weight: 800; color: #fff; margin-top: 5px;
+            font-size: 1.3rem; font-weight: 800; color: #fff; margin-top: 8px;
             text-shadow: 0 0 20px rgba(0,255,157,0.4);
+            word-break: break-all;
         }
         .stat-label { 
-            font-size: 0.85rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
+            font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
         }
 
         /* --- BUTTONS --- */
@@ -182,12 +182,16 @@
 
     <div class="card stat-grid">
         <div class="stat-box">
-            <div class="stat-label">🚀 My Level</div>
+            <div class="stat-label">🚀 Level</div>
             <div class="stat-val" id="userLevel">-</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">👥 Partners</div>
+            <div class="stat-label">👥 Refs</div>
             <div class="stat-val" id="userRefs">0 / 2</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">💰 Balance</div>
+            <div class="stat-val"><span id="userBalance">0</span> <span style="font-size:0.5em; vertical-align:middle;">BNB</span></div>
         </div>
     </div>
 
@@ -272,9 +276,14 @@
             const currentLevel = parseInt(data.currentLevel);
             const filled = parseInt(data.filledInCurrentLevel);
             const isReg = data.isRegistered;
+            
+            // --- НОВОЕ: БАЛАНС ---
+            // balance возвращается 6-м элементом в ответе getUserStatus
+            const balanceEth = web3.utils.fromWei(data.balance, 'ether'); 
 
             document.getElementById('userLevel').innerText = isReg ? currentLevel : '-';
             document.getElementById('userRefs').innerText = isReg ? `${data.totalPersonalReferrals} / 2` : '0 / 2';
+            document.getElementById('userBalance').innerText = isReg ? parseFloat(balanceEth).toFixed(4) : '0';
 
             // Admin Logic
             if(isAdmin) {
