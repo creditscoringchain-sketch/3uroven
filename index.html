@@ -15,6 +15,9 @@
             --glass: rgba(255, 255, 255, 0.07);
             --border: rgba(255, 255, 255, 0.1);
             --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            /* Новые цвета для неона */
+            --neon-gold: #ffd700;
+            --neon-glow: #ff8c00;
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { 
@@ -26,40 +29,66 @@
         }
         .container { max-width: 500px; margin: 0 auto; }
 
-        /* --- HEADER --- */
+        /* --- UPDATED HEADER DESIGN --- */
         header { 
-            display: flex; justify-content: space-between; align-items: center; 
+            display: flex; 
+            flex-direction: column; /* Элементы друг под другом */
+            align-items: center;    /* Всё по центру */
+            justify-content: center;
             margin-bottom: 25px; 
-            padding: 15px 20px; 
+            padding: 20px; 
             background: rgba(20, 20, 35, 0.6);
             backdrop-filter: blur(12px);
-            border-radius: 20px; 
+            border-radius: 24px; 
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
-        }
-        .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { 
-            font-size: 1.8rem; 
-            filter: drop-shadow(0 0 8px var(--primary));
-        }
-        h1 { 
-            margin: 0; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px;
-            background: linear-gradient(90deg, #fff, #bbb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            gap: 15px; /* Отступ между названием и кошельком */
         }
 
-        /* Wallet Badge */
+        .logo-area { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 12px; 
+            width: 100%;
+        }
+
+        /* Новый логотип (деньги) */
+        .logo-icon { 
+            font-size: 2.2rem; 
+            filter: drop-shadow(0 0 10px var(--neon-gold));
+        }
+
+        /* Новое название (Неоновый стиль) */
+        h1 { 
+            margin: 0; 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            letter-spacing: 1px;
+            /* Золотой градиент */
+            background: linear-gradient(135deg, #fff 0%, var(--neon-gold) 50%, var(--neon-glow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* Неоновое свечение */
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            text-transform: uppercase;
+        }
+
+        /* Стиль адреса кошелька (внизу) */
         #walletDisplay {
-            background: rgba(0, 255, 157, 0.1);
-            border: 1px solid rgba(0, 255, 157, 0.3);
-            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3); /* Золотая рамка */
+            padding: 10px 25px;
             border-radius: 50px;
-            color: var(--primary);
+            color: var(--neon-gold);
             font-family: monospace;
             font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
+            font-size: 1rem;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+            letter-spacing: 1px;
+            width: 100%;
+            text-align: center;
+            max-width: 280px;
         }
 
         /* --- CARDS & PANELS --- */
@@ -73,10 +102,10 @@
         }
         .hidden { display: none; }
 
-        /* --- STATS GRID (UPDATED FOR 3 COLUMNS) --- */
+        /* --- STATS GRID --- */
         .stat-grid { 
             display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; /* 3 колонки */
+            grid-template-columns: 1fr 1fr 1fr; 
             gap: 10px; 
             background: transparent; 
             padding: 0;
@@ -116,6 +145,8 @@
             background: linear-gradient(135deg, var(--primary), #00cc7a); 
             color: #001a10; 
             box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3);
+            width: 100%; /* Кнопка на всю ширину в новом хедере */
+            max-width: 200px;
         }
         
         .btn-pay { 
@@ -162,10 +193,11 @@
     
     <header>
         <div class="logo-area">
-            <span class="logo-icon">⚡️</span> 
+            <span class="logo-icon">💰</span> 
             <h1>SparkPoint</h1>
         </div>
-        <button id="connectBtn" class="btn-connect" onclick="connectWallet()">Wallet</button>
+        
+        <button id="connectBtn" class="btn-connect" onclick="connectWallet()">Wallet Connect</button>
         <div id="walletDisplay" class="hidden"></div>
     </header>
 
@@ -276,9 +308,6 @@
             const currentLevel = parseInt(data.currentLevel);
             const filled = parseInt(data.filledInCurrentLevel);
             const isReg = data.isRegistered;
-            
-            // --- НОВОЕ: БАЛАНС ---
-            // balance возвращается 6-м элементом в ответе getUserStatus
             const balanceEth = web3.utils.fromWei(data.balance, 'ether'); 
 
             document.getElementById('userLevel').innerText = isReg ? currentLevel : '-';
@@ -301,7 +330,7 @@
                 const baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
                 document.getElementById('myRefLink').value = `${baseUrl}?ref=${userAccount}`;
 
-                // RENDER LEVELS (КРУЖКИ)
+                // RENDER LEVELS
                 renderLevels(currentLevel, filled);
             } else {
                 document.getElementById('registerBlock').classList.remove('hidden');
@@ -320,7 +349,6 @@
             const max = LEVEL_CAPS[lvl];
             let done = 0;
             
-            // Если мы прошли этот уровень - он полный. Если на нём - берем filledCount.
             if (lvl < currLvl) done = max;
             else if (lvl === currLvl) done = filledCount;
             
@@ -330,7 +358,6 @@
                 circlesHtml += `<div class="circle ${isFilled ? 'filled' : ''}">${isFilled ? '✓' : i+1}</div>`;
             }
 
-            // Делаем неактивные уровни чуть прозрачными
             const opacity = lvl > currLvl ? '0.3' : '1';
 
             const rowHtml = `
