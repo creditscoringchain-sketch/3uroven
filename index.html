@@ -33,7 +33,7 @@
         header { 
             display: flex; 
             flex-direction: column; /* Элементы друг под другом */
-            align-items: center;    /* Всё по центру */
+            align-items: center; /* Всё по центру */
             justify-content: center;
             margin-bottom: 25px; 
             padding: 20px; 
@@ -229,7 +229,7 @@
 
     <div id="registerBlock" class="card">
         <h3 style="margin-top:0; text-align: center;">🚀 Join SparkPoint</h3>
-        <p style="color:#aaa; font-size:0.95rem; margin-bottom:20px; text-align: center;">Activation Cost: <span style="color:white; font-weight:bold;">0.01 BNB</span></p>
+        <p style="color:#aaa; font-size:0.95rem; margin-bottom:20px; text-align: center;">Activation Cost: <span style="color:white; font-weight:bold;">0.001 BNB</span></p>
         
         <label>Invited by (Referrer):</label>
         <input type="text" id="inviterInput" placeholder="0x...">
@@ -258,21 +258,29 @@
 </div>
 
 <script>
-    // --- SETTINGS ---
-    const CONTRACT_ADDRESS = '0x2c52760504AF1a405A225631947a8BF604fA74b9';
+    // --- НОВЫЙ АДРЕС ---
+    const CONTRACT_ADDRESS = '0x2c4326c0577e8Ef8679B302eAd3603Df8224B7ed';
+    
+    // --- НОВЫЙ ABI (который ты скинул) ---
     const ABI = [
-        {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
         {"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"address","name":"_referrer","type":"address"}],"name":"adminAddUser","outputs":[],"stateMutability":"nonpayable","type":"function"},
-        {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
-        {"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"uint256","name":"currentLevel","type":"uint256"},{"internalType":"address","name":"hisReferrer","type":"address"},{"internalType":"uint256","name":"filledInCurrentLevel","type":"uint256"},{"internalType":"uint256","name":"neededForNextLevel","type":"uint256"},{"internalType":"uint256","name":"totalPersonalReferrals","type":"uint256"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"bool","name":"isRegistered","type":"bool"}],"stateMutability":"view","type":"function"},
-        {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"}
+        {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
+        {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"PayoutInternal","type":"event"},
+        {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"PayoutWallet","type":"event"},
+        {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},
+        {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"referrer","type":"address"}],"name":"Register","type":"event"},
+        {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"level","type":"uint256"}],"name":"Upgrade","type":"event"},
+        {"stateMutability":"payable","type":"receive"},
+        {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+        {"inputs":[],"name":"PRICE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+        {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"address","name":"referrer","type":"address"},{"internalType":"uint256","name":"partnersCount","type":"uint256"},{"internalType":"uint256","name":"structureCount","type":"uint256"},{"internalType":"uint256","name":"internalBalance","type":"uint256"},{"internalType":"bool","name":"exists","type":"bool"}],"stateMutability":"view","type":"function"}
     ];
-    // Лимиты уровней: 1 ур = 2, 2 ур = 6, 3 ур = 14
+
+    // Лимиты уровней (не менялись)
     const LEVEL_CAPS = [0, 2, 6, 14]; 
 
     let web3, contract, userAccount;
 
-    // 1. LOAD
     window.addEventListener('load', () => {
         const params = new URLSearchParams(window.location.search);
         if(params.get('ref')) document.getElementById('inviterInput').value = params.get('ref');
@@ -283,14 +291,12 @@
         }
     });
 
-    // 2. CONNECT
     async function connectWallet() {
         if(!window.ethereum) return alert("Install MetaMask!");
         
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         userAccount = accounts[0];
 
-        // UI update
         document.getElementById('connectBtn').classList.add('hidden');
         document.getElementById('walletDisplay').classList.remove('hidden');
         document.getElementById('walletDisplay').innerText = userAccount.substring(0,6) + '...' + userAccount.slice(-4);
@@ -298,59 +304,62 @@
         loadData();
     }
 
-    // 3. LOAD DATA & RENDER
     async function loadData() {
         try {
-            const data = await contract.methods.getUserStatus(userAccount).call();
-            const isAdmin = (await contract.methods.admin().call()).toLowerCase() === userAccount.toLowerCase();
+            // ПРОВЕРКА АДМИНА
+            try {
+                const adminAddr = await contract.methods.admin().call();
+                if(userAccount.toLowerCase() === adminAddr.toLowerCase()) {
+                    document.getElementById('adminPanel').style.display = 'block';
+                    const bal = await web3.eth.getBalance(CONTRACT_ADDRESS);
+                    document.getElementById('contractBalance').innerText = web3.utils.fromWei(bal, 'ether');
+                }
+            } catch(e) { console.log("Admin check skip", e); }
 
-            // Stats
-            const currentLevel = parseInt(data.currentLevel);
-            const filled = parseInt(data.filledInCurrentLevel);
-            const isReg = data.isRegistered;
-            const balanceEth = web3.utils.fromWei(data.balance, 'ether'); 
+            // ЧТЕНИЕ ДАННЫХ ПОЛЬЗОВАТЕЛЯ (Адаптировано под новый ABI)
+            const data = await contract.methods.users(userAccount).call();
+            
+            // В новом ABI структура users возвращает массив/объект с полями:
+            // level, referrer, partnersCount, structureCount, internalBalance, exists
+            
+            const currentLevel = parseInt(data.level);
+            const isReg = data.exists;
+            const balanceEth = web3.utils.fromWei(data.internalBalance, 'ether'); 
+            const referrals = parseInt(data.partnersCount);
 
             document.getElementById('userLevel').innerText = isReg ? currentLevel : '-';
-            document.getElementById('userRefs').innerText = isReg ? `${data.totalPersonalReferrals} / 2` : '0 / 2';
+            document.getElementById('userRefs').innerText = isReg ? `${referrals} / 2` : '0 / 2';
             document.getElementById('userBalance').innerText = isReg ? parseFloat(balanceEth).toFixed(4) : '0';
 
-            // Admin Logic
-            if(isAdmin) {
-                document.getElementById('adminPanel').style.display = 'block';
-                const bal = await web3.eth.getBalance(CONTRACT_ADDRESS);
-                document.getElementById('contractBalance').innerText = web3.utils.fromWei(bal, 'ether');
-            }
-
-            // Screen Logic
             if(isReg) {
                 document.getElementById('registerBlock').classList.add('hidden');
                 document.getElementById('dashboardBlock').classList.remove('hidden');
                 
-                // Link Gen
                 const baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
                 document.getElementById('myRefLink').value = `${baseUrl}?ref=${userAccount}`;
 
-                // RENDER LEVELS
-                renderLevels(currentLevel, filled);
+                // Визуализация кружков (filled берем как кол-во партнеров для 1 уровня)
+                // Примечание: в новом ABI нет точного поля filledInCurrentLevel, используем partnersCount для визуализации
+                renderLevels(currentLevel, referrals);
             } else {
                 document.getElementById('registerBlock').classList.remove('hidden');
                 document.getElementById('dashboardBlock').classList.add('hidden');
             }
 
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error("Load Error:", e); }
     }
 
-    // 4. RENDER LEVELS FUNCTION
     function renderLevels(currLvl, filledCount) {
         const container = document.getElementById('levelsContainer');
-        container.innerHTML = ""; // Clear old
+        container.innerHTML = ""; 
 
         for(let lvl = 1; lvl <= 3; lvl++) {
             const max = LEVEL_CAPS[lvl];
             let done = 0;
             
+            // Простая логика заполнения для отображения
             if (lvl < currLvl) done = max;
-            else if (lvl === currLvl) done = filledCount;
+            else if (lvl === currLvl) done = filledCount > max ? max : filledCount;
             
             let circlesHtml = '';
             for(let i = 0; i < max; i++) {
@@ -373,7 +382,6 @@
         }
     }
 
-    // 5. COPY LINK
     function copyLink() {
         const input = document.getElementById('myRefLink');
         input.select();
@@ -381,7 +389,6 @@
         navigator.clipboard.writeText(input.value).then(() => alert('Copied!'));
     }
 
-    // 6. ACTIONS
     async function register() {
         const ref = document.getElementById('inviterInput').value.trim();
         const st = document.getElementById('regStatus');
@@ -392,7 +399,7 @@
             return;
         }
         try {
-            await contract.methods.register(ref).send({from: userAccount, value: web3.utils.toWei('0.01', 'ether')});
+            await contract.methods.register(ref).send({from: userAccount, value: web3.utils.toWei('0.001', 'ether')});
             location.reload();
         } catch(e) {
             st.innerText = e.message;
@@ -411,13 +418,17 @@
     }
 
     async function withdraw() {
+        // ВНИМАНИЕ: В новом ABI нет функции withdraw. Кнопка оставлена, но работать не будет.
         try {
-            await contract.methods.withdraw().send({from: userAccount});
-            alert("Withdrawn!"); loadData();
+            if(contract.methods.withdraw) {
+                await contract.methods.withdraw().send({from: userAccount});
+                alert("Withdrawn!"); loadData();
+            } else {
+                alert("Функция withdraw отсутствует в этом контракте!");
+            }
         } catch(e) { alert(e.message); }
     }
 </script>
 
 </body>
-    </html>
-    
+</html>
