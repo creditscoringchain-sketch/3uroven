@@ -28,7 +28,6 @@
         }
         .container { max-width: 500px; margin: 0 auto; }
 
-        /* HEADER */
         header { 
             display: flex; 
             flex-direction: column; 
@@ -85,7 +84,6 @@
             max-width: 280px;
         }
 
-        /* CARDS */
         .card { 
             background: var(--card-bg); 
             padding: 25px; 
@@ -96,7 +94,6 @@
         }
         .hidden { display: none; }
 
-        /* STATS */
         .stat-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
@@ -130,7 +127,6 @@
             font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
         }
 
-        /* BUTTONS */
         button { cursor: pointer; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; transition: 0.3s; font-size: 1rem; }
         button:hover { filter: brightness(1.1); }
         button:active { transform: scale(0.96); }
@@ -152,7 +148,6 @@
         .btn-copy { background: rgba(255,255,255,0.1); color: #fff; margin-left: 10px; border: 1px solid var(--border); }
         .btn-admin { background: var(--admin); color: #000; width: 100%; margin-top: 10px; font-weight: bold; }
 
-        /* INPUTS */
         input { 
             width: 100%; padding: 14px; border-radius: 12px; 
             border: 1px solid rgba(255,255,255,0.1); 
@@ -162,7 +157,6 @@
         input:focus { border-color: var(--secondary); background: rgba(0,0,0,0.6); }
         label { color: #889; font-size: 0.9rem; margin-bottom: 5px; display: block; }
 
-        /* LEVELS */
         .level-row { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; }
         .level-header { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 12px; font-weight: 600; color: #ddd; }
         .circles { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -266,10 +260,7 @@
         {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"address","name":"referrer","type":"address"},{"internalType":"uint256","name":"partnersCount","type":"uint256"},{"internalType":"uint256","name":"structureCount","type":"uint256"},{"internalType":"uint256","name":"internalBalance","type":"uint256"},{"internalType":"bool","name":"exists","type":"bool"}],"stateMutability":"view","type":"function"}
     ];
 
-    // Накопительные лимиты: 
-    // Ур 1: до 2 человек
-    // Ур 2: до 6 человек (2 + 4)
-    // Ур 3: до 14 человек (6 + 8)
+    // Накопительные лимиты структуры по уровням
     const LEVEL_CAPS = [0, 2, 6, 14]; 
 
     let web3, contract, userAccount;
@@ -286,20 +277,16 @@
 
     async function connectWallet() {
         if(!window.ethereum) return alert("Install MetaMask!");
-        
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         userAccount = accounts[0];
-
         document.getElementById('connectBtn').classList.add('hidden');
         document.getElementById('walletDisplay').classList.remove('hidden');
         document.getElementById('walletDisplay').innerText = userAccount.substring(0,6) + '...' + userAccount.slice(-4);
-
         loadData();
     }
 
     async function loadData() {
         try {
-            // Check Admin
             try {
                 const adminAddr = await contract.methods.admin().call();
                 if(userAccount.toLowerCase() === adminAddr.toLowerCase()) {
@@ -307,58 +294,49 @@
                     const bal = await web3.eth.getBalance(CONTRACT_ADDRESS);
                     document.getElementById('contractBalance').innerText = web3.utils.fromWei(bal, 'ether');
                 }
-            } catch(e) { console.log("Admin check skip", e); }
+            } catch(e) {}
 
-            // Get User Data
             const data = await contract.methods.users(userAccount).call();
-            
             const currentLevel = parseInt(data.level);
             const isReg = data.exists;
             const balanceEth = web3.utils.fromWei(data.internalBalance, 'ether'); 
-            const referrals = parseInt(data.partnersCount); // Личники
-            const structure = parseInt(data.structureCount); // Вся структура (нужно для кружков)
+            const structure = parseInt(data.structureCount); // Вся команда под тобой
+
+            // Лимит для верхнего табло REFS зависит от текущего уровня
+            const topLimit = LEVEL_CAPS[currentLevel] || 2;
 
             document.getElementById('userLevel').innerText = isReg ? currentLevel : '-';
-            document.getElementById('userRefs').innerText = isReg ? `${referrals} / 2` : '0 / 2';
+            document.getElementById('userRefs').innerText = isReg ? `${structure} / ${topLimit}` : '0 / 2';
             document.getElementById('userBalance').innerText = isReg ? parseFloat(balanceEth).toFixed(4) : '0';
 
             if(isReg) {
                 document.getElementById('registerBlock').classList.add('hidden');
                 document.getElementById('dashboardBlock').classList.remove('hidden');
-                
                 const baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
                 document.getElementById('myRefLink').value = `${baseUrl}?ref=${userAccount}`;
-
-                // ВАЖНО: Передаем structure, чтобы правильно заполнять уровни по очереди
+                
+                // Рисуем кружки на основе всей структуры
                 renderLevels(currentLevel, structure);
             } else {
                 document.getElementById('registerBlock').classList.remove('hidden');
                 document.getElementById('dashboardBlock').classList.add('hidden');
             }
-
-        } catch(e) { console.error("Load Error:", e); }
+        } catch(e) { console.error(e); }
     }
 
     function renderLevels(currLvl, totalStructure) {
         const container = document.getElementById('levelsContainer');
         container.innerHTML = ""; 
 
-        // Логика: заполняем уровни последовательно, исходя из totalStructure
         for(let lvl = 1; lvl <= 3; lvl++) {
-            const prevCap = LEVEL_CAPS[lvl-1]; // Сколько влезло в пред. уровни (напр. 2 для 2 уровня)
-            const currCap = LEVEL_CAPS[lvl];    // Сколько всего влезает по этот уровень (напр. 6 для 2 уровня)
-            const levelSize = currCap - prevCap; // Емкость конкретно этого уровня (4 для 2 уровня)
-
-            // Вычисляем, сколько людей попало именно на этот уровень
-            let filledInThisLevel = totalStructure - prevCap;
-            
-            // Ограничиваем значения (не меньше 0, не больше емкости уровня)
-            if (filledInThisLevel < 0) filledInThisLevel = 0;
-            if (filledInThisLevel > levelSize) filledInThisLevel = levelSize;
+            // Берем накопительный лимит для уровня (2, 6, 14)
+            const max = LEVEL_CAPS[lvl];
+            // Сколько кружков закрасить (не больше лимита)
+            const done = Math.min(totalStructure, max);
             
             let circlesHtml = '';
-            for(let i = 0; i < levelSize; i++) {
-                const isFilled = i < filledInThisLevel;
+            for(let i = 0; i < max; i++) {
+                const isFilled = i < done;
                 circlesHtml += `<div class="circle ${isFilled ? 'filled' : ''}">${isFilled ? '✓' : i+1}</div>`;
             }
 
@@ -368,7 +346,7 @@
                 <div class="level-row" style="opacity: ${opacity}">
                     <div class="level-header">
                         <span>Level ${lvl}</span>
-                        <span style="color:var(--primary)">${filledInThisLevel} / ${levelSize}</span>
+                        <span style="color:var(--primary)">${done} / ${max}</span>
                     </div>
                     <div class="circles">${circlesHtml}</div>
                 </div>
@@ -380,14 +358,12 @@
     function copyLink() {
         const input = document.getElementById('myRefLink');
         input.select();
-        input.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(input.value).then(() => alert('Copied!'));
     }
 
     async function register() {
         const ref = document.getElementById('inviterInput').value.trim();
         const st = document.getElementById('regStatus');
-        
         if(!web3.utils.isAddress(ref)) {
             st.innerText = "Invalid Referrer Address";
             st.style.display = 'block';
@@ -417,9 +393,7 @@
             if(contract.methods.withdraw) {
                 await contract.methods.withdraw().send({from: userAccount});
                 alert("Withdrawn!"); loadData();
-            } else {
-                alert("Withdraw function unavailable in this contract version.");
-            }
+            } else { alert("Not available"); }
         } catch(e) { alert(e.message); }
     }
 </script>
