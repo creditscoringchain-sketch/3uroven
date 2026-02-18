@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SparkPoint - Power Matrix</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
@@ -10,55 +10,51 @@
             --neon-green: #00ff9d;
             --neon-blue: #00d9ff;
             --gold: #ffd700;
-            --bg: #0d0d1a;
-            --card: rgba(255, 255, 255, 0.1);
-            --border: rgba(255, 255, 255, 0.2);
+            --bg: #0b0b15;
+            --card: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.15);
         }
 
         body {
             background: var(--bg);
-            background-image: radial-gradient(circle at top, #1a1a3a, transparent);
             color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0; padding: 20px;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0; padding: 15px;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .container { max-width: 400px; margin: 0 auto; }
+        .container { width: 100%; max-width: 420px; }
 
-        /* HEADER */
-        .header { text-align: center; margin-bottom: 20px; }
-        .logo { font-size: 2.2rem; font-weight: 900; color: #fff; text-shadow: 0 0 15px rgba(0,255,157,0.4); }
-        .wallet-info { font-size: 0.8rem; background: #000; padding: 10px; border-radius: 50px; border: 1px solid var(--border); margin-top: 10px; display: inline-block; color: var(--gold); }
-
-        /* Кнопки */
-        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn-main { background: var(--neon-green); color: #000; box-shadow: 0 5px 20px rgba(0,255,157,0.3); }
-        .btn-tg { background: #0088cc; color: #fff; text-decoration: none; display: block; text-align: center; margin-top: 10px; padding: 12px; border-radius: 12px; font-size: 0.8rem; }
-
-        /* Матрица */
-        .matrix { background: var(--card); border: 1px solid var(--border); border-radius: 30px; padding: 20px; margin: 20px 0; }
-        .lvl-line { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-        .dots { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .dot { width: 22px; height: 22px; border-radius: 50%; background: #1a1a2e; border: 1px solid #333; transition: 0.5s; }
-
-        /* Анимации */
-        @keyframes glow-g { 0% { box-shadow: 0 0 0 0 rgba(0,255,157,0.5); } 70% { box-shadow: 0 0 0 10px transparent; } }
-        @keyframes glow-b { 0% { box-shadow: 0 0 0 0 rgba(0,217,255,0.5); } 70% { box-shadow: 0 0 0 10px transparent; } }
-        @keyframes glow-y { 0% { box-shadow: 0 0 0 0 rgba(255,215,0,0.5); } 70% { box-shadow: 0 0 0 10px transparent; } }
-
-        .active-1 { background: var(--neon-green); animation: glow-g 2s infinite; border-color: #fff; }
-        .active-2 { background: var(--neon-blue); animation: glow-b 2s infinite; border-color: #fff; }
-        .active-3 { background: var(--gold); animation: glow-y 2s infinite; border-radius: 4px; border-color: #fff; }
-
-        .locked { opacity: 0.2; filter: grayscale(1); }
+        /* Шапка */
+        .header { text-align: center; margin-bottom: 25px; }
+        .logo { font-size: 2.5rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 20px var(--neon-blue); }
+        .wallet-bar { background: #000; padding: 8px 15px; border-radius: 50px; border: 1px solid var(--neon-green); font-size: 0.8rem; margin: 10px 0; display: inline-block; color: var(--neon-green); }
 
         /* Блоки */
-        .box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #444; border-radius: 10px; color: #fff; margin: 10px 0; box-sizing: border-box; }
+        .box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        .locked-overlay { text-align: center; padding: 40px 10px; color: #666; }
 
-        /* Проверка участника (Tool) */
-        .tool-box { border: 1px dashed var(--gold); }
+        /* Матрица */
+        .lvl-title { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 0.9rem; }
+        .dots-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .dot { width: 24px; height: 24px; border-radius: 50%; background: #1a1a2e; border: 1px solid #333; position: relative; }
         
+        /* Цвета уровней */
+        .active-1 { background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+        .active-2 { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+        .active-3 { background: var(--gold); border-radius: 4px; box-shadow: 0 0 15px var(--gold); } /* 3 уровень особенный */
+
+        /* Кнопки */
+        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-connect { background: #fff; color: #000; }
+        .btn-pay { background: var(--neon-green); color: #000; box-shadow: 0 0 20px rgba(0,255,157,0.4); }
+        .btn-disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; }
+
+        input { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid #444; border-radius: 12px; color: #fff; margin: 10px 0; box-sizing: border-box; font-family: monospace; }
+        
+        .info-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin: 5px 0; color: #aaa; }
+        .info-value { color: #fff; font-weight: bold; }
+
         .hidden { display: none; }
     </style>
 </head>
@@ -67,141 +63,168 @@
 <div class="container">
     <div class="header">
         <div class="logo">SPARKPOINT</div>
-        <div id="userAddr" class="wallet-info hidden">...</div>
-        <button id="btnConn" class="btn btn-main" style="margin-top:15px" onclick="connect()">Подключить Кошелек</button>
-        <a href="https://t.me/spartpoint/32" class="btn-tg">ИНСТРУКЦИЯ</a>
-    </div>
-
-    <div class="matrix">
-        <div class="lvl-line" style="color:var(--neon-green)"><b>LEVEL 1</b> <span id="l1-count">0/2</span></div>
-        <div id="r1" class="dots"></div>
-
-        <div id="h2" class="lvl-line locked" style="color:var(--neon-blue)"><b>LEVEL 2</b> <span id="l2-count">0/6</span></div>
-        <div id="r2" class="dots locked"></div>
-
-        <div id="h3" class="lvl-line locked" style="color:var(--gold)"><b>LEVEL 3 (WALLET)</b> <span>★</span></div>
-        <div id="r3" class="dots locked"></div>
+        <div id="walletDisplay" class="wallet-bar hidden">0x...</div>
+        <button id="btnConnect" class="btn btn-connect" onclick="connect()">Подключить Кошелек</button>
     </div>
 
     <div id="regBox" class="box">
-        <small>Куратор:</small>
-        <input type="text" id="refInput" placeholder="0x...">
-        <button class="btn btn-main" onclick="register()">Активировать Матрицу</button>
+        <h3 style="margin-top:0">Активация доступа</h3>
+        <p style="font-size: 0.8rem; color: #888;">Вход только по приглашению. Стоимость: 0.001 BNB</p>
+        <label style="font-size: 0.7rem;">ВАШ ПРИГЛАСИТЕЛЬ:</label>
+        <input type="text" id="refInput" placeholder="Адрес куратора отсутствует" readonly>
+        <button id="btnRegister" class="btn btn-pay" onclick="register()">Оплатить и войти</button>
+        <button id="btnAdminJoin" class="btn hidden" style="margin-top:10px; background: none; color: #555; font-size: 0.7rem;" onclick="adminRegister()">Админ-вход</button>
     </div>
 
-    <div id="linkBox" class="box hidden">
-        <small>Твоя ссылка:</small>
-        <input type="text" id="refLink" readonly>
-        <button id="btnCopy" class="btn btn-main" onclick="copy()">Скопировать</button>
+    <div id="mainContent" class="hidden">
+        
+        <div class="box">
+            <div class="info-row"><span>Ваш баланс:</span> <span class="info-value" id="userBalance">0 BNB</span></div>
+            <div class="info-row"><span>Ваш куратор:</span> <span class="info-value" id="uReferrer">0x...</span></div>
+            <div id="limitMsg" style="color: red; font-size: 0.7rem; margin-top: 10px; display: none;">ВНИМАНИЕ: Лимит приглашений (2/2) исчерпан!</div>
+        </div>
+
+        <div class="box">
+            <div class="lvl-title" style="color: var(--neon-green);">УРОВЕНЬ 1 (2 слота) <span id="l1-count">0/2</span></div>
+            <div id="grid1" class="dots-grid"></div>
+
+            <div class="lvl-title" style="color: var(--neon-blue); border-top: 1px solid #222; pt-10">УРОВЕНЬ 2 (6 слотов) <span id="l2-count">0/6</span></div>
+            <div id="grid2" class="dots-grid"></div>
+
+            <div class="lvl-title" style="color: var(--gold); border-top: 1px solid #222; pt-10">УРОВЕНЬ 3 - WALLET (14 слотов) <span>★</span></div>
+            <div id="grid3" class="dots-grid"></div>
+        </div>
+
+        <div class="box" id="linkSection">
+            <p style="margin:0 0 10px 0; font-size: 0.8rem;">Ваша ссылка для приглашения:</p>
+            <input type="text" id="refLink" readonly>
+            <button class="btn btn-pay" onclick="copyLink()">Копировать ссылку</button>
+        </div>
     </div>
 
-    <div id="adminTool" class="box tool-box hidden">
-        <small style="color:var(--gold)">ПРОВЕРКА УЧАСТНИКА:</small>
-        <input type="text" id="checkAddr" placeholder="Введите адрес">
-        <button class="btn" style="background:#444; color:#fff; font-size:0.7rem" onclick="check()">Узнать данные</button>
+    <div id="adminTool" class="box hidden" style="border: 1px dashed var(--gold);">
+        <p style="color:var(--gold); font-size: 0.8rem; margin:0;">ПАНЕЛЬ ПРОВЕРКИ:</p>
+        <input type="text" id="checkAddr" placeholder="Введите адрес участника">
+        <button class="btn" style="background:#222; color:#fff; font-size:0.7rem" onclick="checkUser()">Проверить данные</button>
     </div>
 </div>
 
 <script>
-    const ADDR = '0x2c4326c0577e8Ef8679B302eAd3603Df8224B7ed';
+    const CONTRACT_ADDR = '0x2c4326c0577e8Ef8679B302eAd3603Df8224B7ed';
     const ABI = [
         {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},
+        {"inputs":[],"name":"adminRegister","outputs":[],"stateMutability":"nonpayable","type":"function"},
         {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
         {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"address","name":"referrer","type":"address"},{"internalType":"uint256","name":"partnersCount","type":"uint256"},{"internalType":"uint256","name":"structureCount","type":"uint256"},{"internalType":"uint256","name":"internalBalance","type":"uint256"},{"internalType":"bool","name":"exists","type":"bool"}],"stateMutability":"view","type":"function"}
     ];
 
-    let web3, contract, user;
+    let web3, contract, currentUser;
 
-    function build(id, n) { 
-        const e = document.getElementById(id);
-        for(let i=0; i<n; i++) e.innerHTML += '<div class="dot"></div>';
+    // Инициализация сетки
+    function initGrids() {
+        const g1 = document.getElementById('grid1');
+        const g2 = document.getElementById('grid2');
+        const g3 = document.getElementById('grid3');
+        for(let i=0; i<2; i++) g1.innerHTML += '<div class="dot"></div>';
+        for(let i=0; i<6; i++) g2.innerHTML += '<div class="dot"></div>';
+        for(let i=0; i<14; i++) g3.innerHTML += '<div class="dot"></div>';
     }
-    build('r1', 2); build('r2', 6); build('r3', 14);
+    initGrids();
 
     async function connect() {
-        if(!window.ethereum) return alert("Нужен MetaMask!");
+        if(!window.ethereum) return alert("Установите MetaMask!");
         const accs = await window.ethereum.request({method: 'eth_requestAccounts'});
-        user = accs[0];
+        currentUser = accs[0];
         web3 = new Web3(window.ethereum);
-        contract = new web3.eth.Contract(ABI, ADDR);
+        contract = new web3.eth.Contract(ABI, CONTRACT_ADDR);
+
+        document.getElementById('btnConnect').classList.add('hidden');
+        document.getElementById('walletDisplay').classList.remove('hidden');
+        document.getElementById('walletDisplay').innerText = currentUser.slice(0,6) + '...' + currentUser.slice(-4);
         
-        document.getElementById('btnConn').classList.add('hidden');
-        document.getElementById('userAddr').classList.remove('hidden');
-        document.getElementById('userAddr').innerText = user.slice(0,6)+'...'+user.slice(-4);
-        
-        update();
+        loadData();
     }
 
-    async function update() {
+    async function loadData() {
         try {
-            const data = await contract.methods.users(user).call();
+            const user = await contract.methods.users(currentUser).call();
             const admin = await contract.methods.admin().call();
 
-            // Показываем проверку только админу
-            if(user.toLowerCase() === admin.toLowerCase()) document.getElementById('adminTool').classList.remove('hidden');
+            if(currentUser.toLowerCase() === admin.toLowerCase()) {
+                document.getElementById('adminTool').classList.remove('hidden');
+                document.getElementById('btnAdminJoin').classList.remove('hidden');
+            }
 
-            if(data.exists) {
+            if(user.exists) {
                 document.getElementById('regBox').classList.add('hidden');
-                document.getElementById('linkBox').classList.remove('hidden');
-
-                const struct = parseInt(data.structureCount);
-                const dots = document.querySelectorAll('.dot');
+                document.getElementById('mainContent').classList.remove('hidden');
                 
-                // Красим кружки
+                document.getElementById('userBalance').innerText = web3.utils.fromWei(user.internalBalance, 'ether') + ' BNB';
+                document.getElementById('uReferrer').innerText = user.referrer.slice(0,10) + '...';
+                
+                // РЕФЕРАЛЬНАЯ ЛОГИКА
+                const pCount = parseInt(user.partnersCount);
+                if(pCount >= 2) {
+                    document.getElementById('refLink').value = "ЛИМИТ ИСЧЕРПАН";
+                    document.getElementById('limitMsg').style.display = 'block';
+                } else {
+                    document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + currentUser;
+                }
+
+                // КРАСИМ КРУЖКИ
+                const struct = parseInt(user.structureCount);
+                const dots = document.querySelectorAll('.dot');
                 for(let i=0; i < struct; i++) {
                     if(i < 2) dots[i].classList.add('active-1');
                     else if(i < 8) dots[i].classList.add('active-2');
                     else if(i < 22) dots[i].classList.add('active-3');
                 }
+                
+                document.getElementById('l1-count').innerText = (struct > 2 ? 2 : struct) + "/2";
+                document.getElementById('l2-count').innerText = (struct > 8 ? 6 : (struct > 2 ? struct-2 : 0)) + "/6";
 
-                // Открываем уровни
-                if(struct >= 2) {
-                    document.getElementById('h2').classList.remove('locked');
-                    document.getElementById('r2').classList.remove('locked');
-                    document.getElementById('l1-count').innerText = "2/2";
-                } else { document.getElementById('l1-count').innerText = struct + "/2"; }
-
-                if(struct >= 8) {
-                    document.getElementById('h3').classList.remove('locked');
-                    document.getElementById('r3').classList.remove('locked');
-                    document.getElementById('l2-count').innerText = "6/6";
-                } else if(struct > 2) { document.getElementById('l2-count').innerText = (struct-2) + "/6"; }
-
-                // Ссылка
-                const l = document.getElementById('refLink');
-                if(parseInt(data.partnersCount) >= 2) {
-                    l.value = "ЛИМИТ (2/2) ЗАПОЛНЕН";
-                    document.getElementById('btnCopy').disabled = true;
-                } else {
-                    l.value = window.location.origin + window.location.pathname + "?ref=" + user;
+            } else {
+                // Если не зарегистрирован, проверяем ссылку
+                const params = new URLSearchParams(window.location.search);
+                if(params.has('ref')) {
+                    document.getElementById('refInput').value = params.get('ref');
                 }
             }
-        } catch(e) { console.error(e); }
-    }
-
-    async function check() {
-        const addr = document.getElementById('checkAddr').value;
-        if(!addr) return;
-        const d = await contract.methods.users(addr).call();
-        alert(`Участник: ${addr}\nУровень: ${d.level}\nЛичников: ${d.partnersCount}\nВ структуре: ${d.structureCount}\nБаланс: ${web3.utils.fromWei(d.internalBalance, 'ether')} BNB`);
+        } catch(e) { console.error("Ошибка загрузки:", e); }
     }
 
     async function register() {
-        const r = document.getElementById('refInput').value || '0x0000000000000000000000000000000000000000';
-        await contract.methods.register(r).send({from: user, value: web3.utils.toWei('0.001', 'ether')});
-        location.reload();
+        const ref = document.getElementById('refInput').value || '0x0000000000000000000000000000000000000000';
+        try {
+            await contract.methods.register(ref).send({
+                from: currentUser, 
+                value: web3.utils.toWei('0.001', 'ether')
+            });
+            location.reload();
+        } catch(e) { alert("Ошибка оплаты"); }
     }
 
-    function copy() {
-        const t = document.getElementById("refLink");
-        t.select(); navigator.clipboard.writeText(t.value);
+    async function adminRegister() {
+        try {
+            await contract.methods.adminRegister().send({from: currentUser});
+            location.reload();
+        } catch(e) { alert("Только админ!"); }
+    }
+
+    async function checkUser() {
+        const addr = document.getElementById('checkAddr').value;
+        if(!web3.utils.isAddress(addr)) return alert("Неверный адрес");
+        const d = await contract.methods.users(addr).call();
+        alert(`Адрес: ${addr}\nУровень: ${d.level}\nЛичников: ${d.partnersCount}\nВ структуре: ${d.structureCount}\nБаланс: ${web3.utils.fromWei(d.internalBalance, 'ether')} BNB`);
+    }
+
+    function copyLink() {
+        const copyText = document.getElementById("refLink");
+        if(copyText.value === "ЛИМИТ ИСЧЕРПАН") return;
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
         alert("Ссылка скопирована!");
     }
-
-    window.onload = () => {
-        const p = new URLSearchParams(window.location.search);
-        if(p.has('ref')) document.getElementById('refInput').value = p.get('ref');
-    };
 </script>
 </body>
 </html>
