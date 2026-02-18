@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SparkPoint Pro</title>
+    <title>SparkPoint Matrix</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
         :root {
             --primary: #00ff9d;
-            --secondary: #00b8ff;
-            --admin-gold: #ffd700;
+            --gold: #ffd700;
             --bg: #0f0f1a;
-            --card-bg: rgba(255, 255, 255, 0.04);
+            --card: rgba(255, 255, 255, 0.05);
             --border: rgba(255, 255, 255, 0.1);
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
@@ -19,56 +18,59 @@
             background: radial-gradient(circle at top, #1a1a2e 0%, #0f0f1a 100%); 
             color: #fff; margin: 0; padding: 20px; min-height: 100vh;
         }
-        .container { max-width: 480px; margin: 0 auto; }
+        .container { max-width: 450px; margin: 0 auto; }
 
-        /* ХЕДЕР */
+        /* ХЕДЕР С МЕШКОМ */
         header {
-            text-align: center; margin-bottom: 25px; padding: 20px;
-            background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);
+            text-align: center; margin-bottom: 20px; padding: 20px;
+            background: var(--card); border-radius: 24px; border: 1px solid var(--border);
         }
-        .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
-        .logo-wrap span { font-size: 2.5rem; filter: drop-shadow(0 0 10px var(--admin-gold)); }
-        h1 { 
-            margin: 0; font-size: 1.8rem; letter-spacing: 2px; font-weight: 900;
-            background: linear-gradient(to right, #fff, var(--admin-gold));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
+        .logo { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .logo span { font-size: 2.2rem; filter: drop-shadow(0 0 8px var(--gold)); }
+        h1 { margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
 
-        /* АДМИНКА (СКРИН 3) */
+        /* АДМИНКА (ИЗ СКРИНА 3) */
         #adminArea {
-            border: 2px solid var(--admin-gold); background: rgba(255, 215, 0, 0.07);
-            padding: 20px; border-radius: 24px; margin-bottom: 20px; display: none;
+            border: 2px solid var(--gold); background: rgba(255, 215, 0, 0.05);
+            padding: 20px; border-radius: 20px; margin-bottom: 20px; display: none;
         }
         .btn-withdraw {
-            background: var(--admin-gold); color: #000; width: 100%; padding: 14px;
-            border-radius: 14px; font-weight: 800; border: none; cursor: pointer; margin: 10px 0;
+            background: var(--gold); color: #000; width: 100%; padding: 12px;
+            border-radius: 12px; font-weight: bold; border: none; cursor: pointer; margin-bottom: 15px;
         }
 
-        /* ТРИ КВАДРАТА */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .stat-box {
-            background: var(--card-bg); border: 1px solid var(--border);
-            padding: 20px 5px; border-radius: 22px; text-align: center;
+        /* ВИЗУАЛЬНЫЕ КРУГИ */
+        .matrix-container { background: var(--card); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .level-row { margin-bottom: 20px; text-align: center; }
+        .level-row:last-child { margin-bottom: 0; }
+        .level-label { font-size: 0.7rem; color: #889; text-transform: uppercase; display: block; margin-bottom: 10px; }
+        
+        .circles { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+        .circle {
+            width: 25px; height: 25px; border-radius: 50%; 
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            transition: 0.4s;
         }
-        .stat-label { font-size: 0.7rem; color: #889; text-transform: uppercase; margin-bottom: 10px; display: block; font-weight: bold; }
-        .stat-val { font-size: 1.4rem; font-weight: 800; color: #fff; }
-
-        /* ИНФО О ПРИГЛАСИТЕЛЕ */
-        .inviter-info {
-            background: rgba(0, 184, 255, 0.08); border: 1px solid rgba(0, 184, 255, 0.2);
-            padding: 12px; border-radius: 20px; margin-bottom: 20px; text-align: center;
+        .circle.active { 
+            background: var(--primary); box-shadow: 0 0 12px var(--primary); border: none;
         }
 
-        .card { background: var(--card-bg); padding: 25px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; }
+        /* ИНФО */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: var(--card); padding: 15px; border-radius: 18px; text-align: center; border: 1px solid var(--border); }
+        .stat-val { font-size: 1.2rem; font-weight: bold; }
+
+        .inviter-box { font-size: 0.8rem; text-align: center; color: #00b8ff; margin-bottom: 20px; }
+
+        /* ФОРМЫ */
+        .card { background: var(--card); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; }
         input { 
-            width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--border);
-            background: rgba(0,0,0,0.3); color: #fff; margin-bottom: 15px; outline: none;
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+            background: rgba(0,0,0,0.3); color: #fff; margin-bottom: 10px; outline: none;
         }
-        .btn-main { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 800; cursor: pointer; }
-        .btn-primary { background: var(--primary); color: #001a10; }
-        .btn-copy { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border); }
-
-        .status-msg { text-align: center; color: var(--primary); font-weight: bold; padding: 10px; }
+        .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-green { background: var(--primary); color: #001a10; }
+        
         .hidden { display: none; }
     </style>
 </head>
@@ -76,62 +78,72 @@
 
 <div class="container">
     <header>
-        <div class="logo-wrap">
-            <span>💰</span>
-            <h1>SPARKPOINT</h1>
-        </div>
-        <button id="connectBtn" class="btn-main btn-primary" onclick="connect()">Connect Wallet</button>
-        <div id="walletAddr" style="color:var(--admin-gold); font-family:monospace; margin-top:10px" class="hidden"></div>
+        <div class="logo"><span>💰</span><h1>SPARKPOINT</h1></div>
+        <button id="connectBtn" class="btn-main btn-green" style="margin-top:15px" onclick="connect()">Connect Wallet</button>
+        <div id="userAddr" style="font-size:0.8rem; color:var(--gold); margin-top:10px" class="hidden"></div>
     </header>
 
     <div id="adminArea">
-        <h3 style="margin:0; color:var(--admin-gold)">👑 SENIOR ADMIN</h3>
-        <p>Contract Balance: <span id="contractBal">0</span> BNB</p>
+        <span style="color:var(--gold); font-size:0.8rem; font-weight:bold">👑 ADMIN ACCESS</span>
+        <p>Balance: <span id="contractBal">0</span> BNB</p>
         <button class="btn-withdraw" onclick="withdraw()">Withdraw All</button>
-        <div style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px">
-            <label style="font-size:0.8rem; color:#aaa">Free Registration:</label>
-            <input type="text" id="admUser" placeholder="User Address" style="margin-top:10px">
-            <input type="text" id="admRef" placeholder="Referrer Address">
-            <button class="btn-main" style="background:#fff; color:#000" onclick="adminAdd()">Add Free User</button>
-        </div>
+        <input type="text" id="admUser" placeholder="User Address">
+        <input type="text" id="admRef" placeholder="Referrer Address">
+        <button class="btn-main" style="background:#fff; color:#000" onclick="adminAdd()">Add Free User</button>
     </div>
 
     <div class="stat-grid">
         <div class="stat-box">
-            <span class="stat-label">🚀 LEVEL</span>
-            <div id="userLvl" class="stat-val">-</div>
+            <div style="font-size:0.7rem; color:#889">LEVEL</div>
+            <div id="uLvl" class="stat-val">-</div>
         </div>
         <div class="stat-box">
-            <span class="stat-label">👥 PARTNERS</span>
-            <div id="userRefs" class="stat-val">0 / 2</div>
-        </div>
-        <div class="stat-box">
-            <span class="stat-label">💰 BALANCE</span>
-            <div id="userBal" class="stat-val">0.00</div>
+            <div style="font-size:0.7rem; color:#889">EARNED</div>
+            <div id="uBal" class="stat-val">0.00</div>
         </div>
     </div>
 
-    <div id="inviterBox" class="inviter-info hidden">
-        <span style="font-size:0.7rem; color:var(--secondary); font-weight:bold">INVITED BY:</span>
-        <div id="inviterAddr" style="font-family:monospace; font-size:0.8rem; margin-top:5px; color:#fff"></div>
+    <div class="matrix-container">
+        <div class="level-row">
+            <span class="level-label">Level 1 (2 slots)</span>
+            <div class="circles" id="row1">
+                <div class="circle"></div><div class="circle"></div>
+            </div>
+        </div>
+        <div class="level-row">
+            <span class="level-label">Level 2 (4 slots)</span>
+            <div class="circles" id="row2">
+                <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+            </div>
+        </div>
+        <div class="level-row">
+            <span class="level-label">Level 3 (8 slots)</span>
+            <div class="circles" id="row3">
+                <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="inviterBox" class="inviter-box hidden">
+        Invited by: <span id="invAddr" style="color:#fff"></span>
     </div>
 
     <div id="regBlock" class="card">
-        <h3 style="text-align:center; margin-top:0">Activate Account</h3>
+        <h3 style="text-align:center; margin-top:0">Activate Matrix</h3>
         <input type="text" id="refInput" placeholder="Referrer Address">
-        <button class="btn-main btn-primary" onclick="register()">ACTIVATE (0.001 BNB)</button>
+        <button class="btn-main btn-green" onclick="register()">ACTIVATE (0.001 BNB)</button>
     </div>
 
     <div id="dashBlock" class="card hidden">
         <div id="linkActive">
-            <label style="font-weight:bold; font-size:0.9rem">Your Referral Link:</label>
-            <div style="display:flex; gap:10px; margin-top:10px">
-                <input type="text" id="refLink" readonly style="margin:0">
-                <button class="btn-main btn-copy" style="width:100px" onclick="copy()">Copy</button>
+            <label style="font-size:0.8rem; font-weight:bold">Your Link:</label>
+            <div style="display:flex; gap:5px; margin-top:10px">
+                <input type="text" id="refLink" readonly style="margin:0; font-size:0.8rem">
+                <button class="btn-main btn-green" style="width:80px; padding:0" onclick="copy()">Copy</button>
             </div>
         </div>
-        <div id="linkDisabled" class="status-msg hidden">
-            ✅ Limit Reached (2/2) <br> <span style="font-size: 0.8rem; color: #889;">Wait for your downline to push you up!</span>
+        <div id="linkFull" class="hidden" style="text-align:center; color:var(--primary); font-weight:bold">
+            🎉 2/2 Partners Joined! <br> <span style="font-size:0.7rem; color:#889">Wait for structure spillover</span>
         </div>
     </div>
 </div>
@@ -153,48 +165,51 @@
         user = accs[0];
         web3 = new Web3(window.ethereum);
         contract = new web3.eth.Contract(ABI, ADDR);
+        
         document.getElementById('connectBtn').classList.add('hidden');
-        document.getElementById('walletAddr').classList.remove('hidden');
-        document.getElementById('walletAddr').innerText = user.substring(0,8)+'...'+user.slice(-6);
+        document.getElementById('userAddr').classList.remove('hidden');
+        document.getElementById('userAddr').innerText = user;
         load();
     }
 
     async function load() {
-        try {
-            const data = await contract.methods.users(user).call();
-            const adm = await contract.methods.admin().call();
+        const data = await contract.methods.users(user).call();
+        const adm = await contract.methods.admin().call();
 
-            if(user.toLowerCase() === adm.toLowerCase()) {
-                document.getElementById('adminArea').style.display = 'block';
-                const b = await web3.eth.getBalance(ADDR);
-                document.getElementById('contractBal').innerText = web3.utils.fromWei(b, 'ether');
+        if(user.toLowerCase() === adm.toLowerCase()) {
+            document.getElementById('adminArea').style.display = 'block';
+            const b = await web3.eth.getBalance(ADDR);
+            document.getElementById('contractBal').innerText = web3.utils.fromWei(b, 'ether');
+        }
+
+        if(data.exists) {
+            document.getElementById('uLvl').innerText = data.level;
+            document.getElementById('uBal').innerText = parseFloat(web3.utils.fromWei(data.internalBalance, 'ether')).toFixed(3) + ' BNB';
+            document.getElementById('inviterBox').classList.remove('hidden');
+            document.getElementById('invAddr').innerText = data.referrer.substring(0,10)+'...';
+
+            // ЛОГИКА КРУЖКОВ
+            const count = parseInt(data.structureCount);
+            fillCircles(count);
+
+            // ЛОГИКА ССЫЛКИ
+            document.getElementById('regBlock').classList.add('hidden');
+            document.getElementById('dashBlock').classList.remove('hidden');
+            
+            if(parseInt(data.partnersCount) >= 2) {
+                document.getElementById('linkActive').classList.add('hidden');
+                document.getElementById('linkFull').classList.remove('hidden');
+            } else {
+                document.getElementById('refLink').value = window.location.origin + window.location.pathname + '?ref=' + user;
             }
+        }
+    }
 
-            if(data.exists) {
-                document.getElementById('userLvl').innerText = data.level;
-                
-                // ПОКАЗЫВАЕМ ТОЛЬКО ПРЯМЫХ ПАРТНЕРОВ (0/2)
-                const pCount = parseInt(data.partnersCount);
-                document.getElementById('userRefs').innerText = `${pCount} / 2`;
-                
-                const eth = web3.utils.fromWei(data.internalBalance, 'ether');
-                document.getElementById('userBal').innerText = parseFloat(eth).toFixed(4);
-
-                document.getElementById('inviterBox').classList.remove('hidden');
-                document.getElementById('inviterAddr').innerText = data.referrer;
-
-                document.getElementById('regBlock').classList.add('hidden');
-                document.getElementById('dashBlock').classList.remove('hidden');
-
-                // ЛОГИКА ОТКЛЮЧЕНИЯ ССЫЛКИ
-                if(pCount >= 2) {
-                    document.getElementById('linkActive').classList.add('hidden');
-                    document.getElementById('linkDisabled').classList.remove('hidden');
-                } else {
-                    document.getElementById('refLink').value = window.location.origin + window.location.pathname + '?ref=' + user;
-                }
-            }
-        } catch(e) { console.error(e); }
+    function fillCircles(total) {
+        const allCircles = document.querySelectorAll('.circle');
+        for(let i = 0; i < allCircles.length; i++) {
+            if(i < total) allCircles[i].classList.add('active');
+        }
     }
 
     async function register() {
@@ -205,10 +220,8 @@
 
     async function adminAdd() {
         await contract.methods.adminAddUser(document.getElementById('admUser').value, document.getElementById('admRef').value).send({from:user});
-        alert("Success"); load();
+        alert("Done"); load();
     }
-
-    async function withdraw() { alert("Sending withdraw request..."); }
 
     function copy() {
         const l = document.getElementById('refLink'); l.select();
@@ -221,4 +234,5 @@
     };
 </script>
 </body>
-</html>
+    </html>
+    
