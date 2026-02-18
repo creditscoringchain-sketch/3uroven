@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SparkPoint Matrix Pro</title>
+    <title>SparkPoint Full Matrix</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
         :root {
@@ -28,13 +28,11 @@
         .logo span { font-size: 2.2rem; filter: drop-shadow(0 0 8px var(--gold)); }
         h1 { margin: 0; font-size: 1.6rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
 
-        /* АДМИНКА */
         #adminArea {
             border: 2px solid var(--gold); background: rgba(255, 215, 0, 0.05);
             padding: 20px; border-radius: 20px; margin-bottom: 20px; display: none;
         }
 
-        /* КРУГИ ПО ТВОИМ ПРАВИЛАМ */
         .matrix-container { background: var(--card); padding: 25px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; }
         .level-row { margin-bottom: 25px; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
         .level-row:last-child { margin-bottom: 0; border: none; }
@@ -50,7 +48,6 @@
             background: var(--primary); box-shadow: 0 0 15px var(--primary); border: none; color: #000; font-weight: bold;
         }
 
-        /* ИНФО */
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .stat-box { background: var(--card); padding: 15px; border-radius: 18px; text-align: center; border: 1px solid var(--border); }
         .stat-val { font-size: 1.2rem; font-weight: bold; color: #fff; }
@@ -62,7 +59,6 @@
         }
         .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
         .btn-green { background: var(--primary); color: #001a10; }
-        
         .hidden { display: none; }
     </style>
 </head>
@@ -77,14 +73,14 @@
 
     <div id="adminArea">
         <button class="btn-main" style="background:var(--gold); margin-bottom:10px" onclick="withdraw()">Withdraw All</button>
-        <input type="text" id="admUser" placeholder="User Address">
+        <input type="text" id="admUser" placeholder="New User Address">
         <input type="text" id="admRef" placeholder="Referrer Address">
-        <button class="btn-main" style="background:#fff" onclick="adminAdd()">Add Free User</button>
+        <button class="btn-main" style="background:#fff; color:#000" onclick="adminAdd()">Add Free User</button>
     </div>
 
     <div class="stat-grid">
         <div class="stat-box">
-            <div style="font-size:0.7rem; color:#889">CURRENT LEVEL</div>
+            <div style="font-size:0.7rem; color:#889">LEVEL</div>
             <div id="uLvl" class="stat-val">-</div>
         </div>
         <div class="stat-box">
@@ -95,15 +91,15 @@
 
     <div class="matrix-container">
         <div class="level-row">
-            <span class="level-label">Level 1 — 2 Partners</span>
+            <span class="level-label">Level 1 (2 Slots)</span>
             <div class="circles" id="row1"></div>
         </div>
         <div class="level-row">
-            <span class="level-label">Level 2 — 6 Partners</span>
+            <span class="level-label">Level 2 (6 Slots)</span>
             <div class="circles" id="row2"></div>
         </div>
         <div class="level-row">
-            <span class="level-label">Level 3 — 14 Partners</span>
+            <span class="level-label">Level 3 (14 Slots)</span>
             <div class="circles" id="row3"></div>
         </div>
     </div>
@@ -121,9 +117,9 @@
                 <button class="btn-main btn-green" style="width:80px; padding:0" onclick="copy()">Copy</button>
             </div>
         </div>
-        <div id="linkFull" class="hidden" style="text-align:center; color:var(--primary);">
-            🎉 Direct Refs: 2 / 2 <br>
-            <span style="font-size:0.7rem; color:#889">Link disabled. Structure is growing!</span>
+        <div id="linkFull" class="hidden" style="text-align:center; color:var(--primary); font-weight:bold">
+            ✅ 2/2 REFS ACTIVE<br>
+            <span style="font-size:0.7rem; color:#889">Link disabled. Your team pushes you up!</span>
         </div>
     </div>
 </div>
@@ -139,7 +135,6 @@
 
     let web3, contract, user;
 
-    // Генерируем круги при загрузке
     function createCircles(id, count) {
         const container = document.getElementById(id);
         for(let i=1; i<=count; i++) {
@@ -168,25 +163,15 @@
     async function load() {
         const data = await contract.methods.users(user).call();
         const adm = await contract.methods.admin().call();
-
         if(user.toLowerCase() === adm.toLowerCase()) document.getElementById('adminArea').style.display = 'block';
-
         if(data.exists) {
             document.getElementById('uLvl').innerText = data.level;
             document.getElementById('uBal').innerText = parseFloat(web3.utils.fromWei(data.internalBalance, 'ether')).toFixed(3);
-
-            // ЗАПОЛНЕНИЕ КРУГОВ
-            // Если структура вытолкнула на 2 уровень, закрашиваем круги согласно structureCount
-            const totalInStructure = parseInt(data.structureCount);
-            const allCircles = document.querySelectorAll('.circle');
-            allCircles.forEach((c, index) => {
-                if(index < totalInStructure) c.classList.add('active');
-            });
-
-            // ОТКЛЮЧЕНИЕ ССЫЛКИ ПРИ 2 РЕФАХ
+            const total = parseInt(data.structureCount);
+            const allC = document.querySelectorAll('.circle');
+            allC.forEach((c, idx) => { if(idx < total) c.classList.add('active'); });
             document.getElementById('regBlock').classList.add('hidden');
             document.getElementById('dashBlock').classList.remove('hidden');
-            
             if(parseInt(data.partnersCount) >= 2) {
                 document.getElementById('linkActive').classList.add('hidden');
                 document.getElementById('linkFull').classList.remove('hidden');
@@ -205,6 +190,11 @@
     async function adminAdd() {
         await contract.methods.adminAddUser(document.getElementById('admUser').value, document.getElementById('admRef').value).send({from:user});
         location.reload();
+    }
+
+    async function withdraw() {
+        // Здесь вызов функции вывода из контракта, если она есть
+        alert("Withdrawal function called");
     }
 
     function copy() {
