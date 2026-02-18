@@ -3,226 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SparkPoint - Power Matrix</title>
+    <title>Matrix Force Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
         :root {
-            --neon-green: #00ff9d;
-            --neon-blue: #00d9ff;
-            --gold: #ffd700;
-            --bg: #0b0b15;
-            --card: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.15);
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc13fe;
+            --gold: #ffcc00;
+            --dark-bg: #050508;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         body {
-            background: var(--bg);
-            color: #fff;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            margin: 0; padding: 15px;
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #050508 100%);
+            color: #e0e0e0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
         }
 
-        .container { width: 100%; max-width: 420px; }
+        .container { width: 100%; max-width: 440px; }
 
-        /* Шапка */
-        .header { text-align: center; margin-bottom: 25px; }
-        .logo { font-size: 2.5rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 20px var(--neon-blue); }
-        .wallet-bar { background: #000; padding: 8px 15px; border-radius: 50px; border: 1px solid var(--neon-green); font-size: 0.8rem; margin: 10px 0; display: inline-block; color: var(--neon-green); }
+        /* Элементы дизайна */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
 
-        /* Блоки */
-        .box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
-        .locked-overlay { text-align: center; padding: 40px 10px; color: #666; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { 
+            font-size: 1.8rem; font-weight: 900; 
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-transform: uppercase; letter-spacing: 3px;
+        }
 
-        /* Матрица */
-        .lvl-title { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 0.9rem; }
-        .dots-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        .dot { width: 24px; height: 24px; border-radius: 50%; background: #1a1a2e; border: 1px solid #333; position: relative; }
+        /* Статусы и кнопки */
+        .status-tag {
+            display: inline-block; padding: 5px 12px; border-radius: 50px;
+            font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
+            margin-bottom: 10px; border: 1px solid currentColor;
+        }
+
+        .btn {
+            width: 100%; padding: 18px; border-radius: 18px; border: none;
+            font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.4s;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-main { background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); color: #fff; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(188, 19, 254, 0.5); }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: #fff; }
+
+        /* Матрица уровней */
+        .matrix-title { font-size: 0.8rem; color: #888; margin-bottom: 15px; display: flex; justify-content: space-between; }
+        .dots-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 10px 0; }
+        .dot { width: 30px; height: 30px; border-radius: 50%; background: #151520; border: 1px solid #252535; transition: 0.5s; }
         
-        /* Цвета уровней */
-        .active-1 { background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
-        .active-2 { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
-        .active-3 { background: var(--gold); border-radius: 4px; box-shadow: 0 0 15px var(--gold); } /* 3 уровень особенный */
+        .active-lvl1 { background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
+        .active-lvl2 { background: var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple); }
+        .active-lvl3 { 
+            background: var(--gold); border-radius: 8px; 
+            box-shadow: 0 0 20px var(--gold); 
+            animation: pulse 2s infinite;
+        }
 
-        /* Кнопки */
-        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-connect { background: #fff; color: #000; }
-        .btn-pay { background: var(--neon-green); color: #000; box-shadow: 0 0 20px rgba(0,255,157,0.4); }
-        .btn-disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
 
-        input { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid #444; border-radius: 12px; color: #fff; margin: 10px 0; box-sizing: border-box; font-family: monospace; }
-        
-        .info-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin: 5px 0; color: #aaa; }
-        .info-value { color: #fff; font-weight: bold; }
+        input {
+            width: 100%; padding: 15px; background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border); border-radius: 14px;
+            color: #fff; margin: 10px 0; box-sizing: border-box; font-family: 'Courier New', monospace;
+        }
 
         .hidden { display: none; }
+        .admin-panel { border: 1px solid var(--gold); background: rgba(255, 204, 0, 0.05); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div class="logo">SPARKPOINT</div>
-        <div id="walletDisplay" class="wallet-bar hidden">0x...</div>
-        <button id="btnConnect" class="btn btn-connect" onclick="connect()">Подключить Кошелек</button>
+        <div class="logo">Matrix Force</div>
+        <div id="walletInfo" class="status-tag" style="color: var(--neon-blue); margin-top: 10px; display: none;">Connected</div>
     </div>
 
-    <div id="regBox" class="box">
-        <h3 style="margin-top:0">Активация доступа</h3>
-        <p style="font-size: 0.8rem; color: #888;">Вход только по приглашению. Стоимость: 0.001 BNB</p>
-        <label style="font-size: 0.7rem;">ВАШ ПРИГЛАСИТЕЛЬ:</label>
-        <input type="text" id="refInput" placeholder="Адрес куратора отсутствует" readonly>
-        <button id="btnRegister" class="btn btn-pay" onclick="register()">Оплатить и войти</button>
-        <button id="btnAdminJoin" class="btn hidden" style="margin-top:10px; background: none; color: #555; font-size: 0.7rem;" onclick="adminRegister()">Админ-вход</button>
+    <div id="connectBox" class="glass-card" style="text-align: center;">
+        <h2>Добро пожаловать</h2>
+        <p style="color: #888;">Для входа в систему подключите свой крипто-кошелек</p>
+        <button class="btn btn-main" onclick="connect()">Подключить Wallet</button>
     </div>
 
-    <div id="mainContent" class="hidden">
+    <div id="regBox" class="glass-card hidden">
+        <div class="status-tag" style="color: #ff4444;">Активация не выполнена</div>
+        <h3>Регистрация</h3>
+        <p style="font-size: 0.8rem; color: #888;">Вход только по пригласительной ссылке.<br>Стоимость: 0.001 BNB</p>
+        <label style="font-size: 0.7rem; color: var(--neon-blue);">ВАШ ПРИГЛАСИТЕЛЬ:</label>
+        <input type="text" id="refInput" readonly>
+        <button class="btn btn-main" onclick="register()">Оплатить 0.001 BNB</button>
+    </div>
+
+    <div id="dashboard" class="hidden">
         
-        <div class="box">
-            <div class="info-row"><span>Ваш баланс:</span> <span class="info-value" id="userBalance">0 BNB</span></div>
-            <div class="info-row"><span>Ваш куратор:</span> <span class="info-value" id="uReferrer">0x...</span></div>
-            <div id="limitMsg" style="color: red; font-size: 0.7rem; margin-top: 10px; display: none;">ВНИМАНИЕ: Лимит приглашений (2/2) исчерпан!</div>
+        <div class="glass-card">
+            <div class="matrix-title"><span>ВАШ КУРАТОР:</span> <span id="curatorAddr" style="color: #fff;">-</span></div>
+            <div class="matrix-title"><span>БАЛАНС (LVL 1-2):</span> <span id="userBalance" style="color: var(--neon-blue);">0.00 BNB</span></div>
         </div>
 
-        <div class="box">
-            <div class="lvl-title" style="color: var(--neon-green);">УРОВЕНЬ 1 (2 слота) <span id="l1-count">0/2</span></div>
-            <div id="grid1" class="dots-grid"></div>
+        <div class="glass-card">
+            <div class="matrix-title" style="color: var(--neon-blue);">УРОВЕНЬ 1 (2 слота) <span id="l1-stat">0/2</span></div>
+            <div id="grid1" class="dots-container"></div>
+            
+            <div style="height: 1px; background: var(--glass-border); margin: 20px 0;"></div>
 
-            <div class="lvl-title" style="color: var(--neon-blue); border-top: 1px solid #222; pt-10">УРОВЕНЬ 2 (6 слотов) <span id="l2-count">0/6</span></div>
-            <div id="grid2" class="dots-grid"></div>
+            <div class="matrix-title" style="color: var(--neon-purple);">УРОВЕНЬ 2 (6 слотов) <span id="l2-stat">0/6</span></div>
+            <div id="grid2" class="dots-container"></div>
 
-            <div class="lvl-title" style="color: var(--gold); border-top: 1px solid #222; pt-10">УРОВЕНЬ 3 - WALLET (14 слотов) <span>★</span></div>
-            <div id="grid3" class="dots-grid"></div>
+            <div style="height: 1px; background: var(--glass-border); margin: 20px 0;"></div>
+
+            <div class="matrix-title" style="color: var(--gold);">УРОВЕНЬ 3 - ПРЯМЫЕ ВЫПЛАТЫ <span id="l3-stat">★</span></div>
+            <div id="grid3" class="dots-container"></div>
         </div>
 
-        <div class="box" id="linkSection">
-            <p style="margin:0 0 10px 0; font-size: 0.8rem;">Ваша ссылка для приглашения:</p>
+        <div class="glass-card">
+            <p style="font-size: 0.8rem; margin-bottom: 10px;">Ваша партнерская ссылка:</p>
             <input type="text" id="refLink" readonly>
-            <button class="btn btn-pay" onclick="copyLink()">Копировать ссылку</button>
+            <button class="btn btn-outline" onclick="copyLink()">Копировать ссылку</button>
+            <p id="limitText" style="color: #ff4444; font-size: 0.7rem; margin-top: 10px; display: none; text-align: center;">ЛИМИТ ПРИГЛАШЕНИЙ ИСЧЕРПАН (2/2)</p>
         </div>
     </div>
 
-    <div id="adminTool" class="box hidden" style="border: 1px dashed var(--gold);">
-        <p style="color:var(--gold); font-size: 0.8rem; margin:0;">ПАНЕЛЬ ПРОВЕРКИ:</p>
-        <input type="text" id="checkAddr" placeholder="Введите адрес участника">
-        <button class="btn" style="background:#222; color:#fff; font-size:0.7rem" onclick="checkUser()">Проверить данные</button>
+    <div id="adminPanel" class="glass-card admin-panel hidden">
+        <h4 style="margin: 0 0 15px 0; color: var(--gold);">ADMIN CONTROL</h4>
+        <div class="matrix-title"><span>БАЛАНС ПРОЕКТА:</span> <span id="contractBalance">0.00 BNB</span></div>
+        <p style="font-size: 0.7rem; color: #888;">Добавить участника бесплатно:</p>
+        <input type="text" id="adminNewUser" placeholder="Кошелек нового участника">
+        <input type="text" id="adminNewRef" placeholder="Кошелек его куратора">
+        <button class="btn" style="background: var(--gold); color: #000; padding: 10px;" onclick="adminAddUser()">Добавить в структуру</button>
     </div>
 </div>
 
 <script>
-    const CONTRACT_ADDR = '0x2c4326c0577e8Ef8679B302eAd3603Df8224B7ed';
+    const CONTRACT_ADDR = "0x2c4326c0577e8Ef8679B302eAd3603Df8224B7ed";
     const ABI = [
         {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},
-        {"inputs":[],"name":"adminRegister","outputs":[],"stateMutability":"nonpayable","type":"function"},
-        {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+        {"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"address","name":"_ref","type":"address"}],"name":"adminAddUser","outputs":[],"stateMutability":"nonpayable","type":"function"},
+        {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
         {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"address","name":"referrer","type":"address"},{"internalType":"uint256","name":"partnersCount","type":"uint256"},{"internalType":"uint256","name":"structureCount","type":"uint256"},{"internalType":"uint256","name":"internalBalance","type":"uint256"},{"internalType":"bool","name":"exists","type":"bool"}],"stateMutability":"view","type":"function"}
     ];
 
-    let web3, contract, currentUser;
+    let web3, contract, userAddr;
 
-    // Инициализация сетки
-    function initGrids() {
-        const g1 = document.getElementById('grid1');
-        const g2 = document.getElementById('grid2');
-        const g3 = document.getElementById('grid3');
-        for(let i=0; i<2; i++) g1.innerHTML += '<div class="dot"></div>';
-        for(let i=0; i<6; i++) g2.innerHTML += '<div class="dot"></div>';
-        for(let i=0; i<14; i++) g3.innerHTML += '<div class="dot"></div>';
+    // Сетки кружков
+    function buildGrids() {
+        const createDots = (id, count) => {
+            const container = document.getElementById(id);
+            for(let i=0; i<count; i++) container.innerHTML += '<div class="dot"></div>';
+        }
+        buildGrids.executed = true;
+        createDots('grid1', 2);
+        createDots('grid2', 6);
+        createDots('grid3', 14);
     }
-    initGrids();
+    buildGrids();
 
     async function connect() {
-        if(!window.ethereum) return alert("Установите MetaMask!");
-        const accs = await window.ethereum.request({method: 'eth_requestAccounts'});
-        currentUser = accs[0];
-        web3 = new Web3(window.ethereum);
-        contract = new web3.eth.Contract(ABI, CONTRACT_ADDR);
-
-        document.getElementById('btnConnect').classList.add('hidden');
-        document.getElementById('walletDisplay').classList.remove('hidden');
-        document.getElementById('walletDisplay').innerText = currentUser.slice(0,6) + '...' + currentUser.slice(-4);
-        
-        loadData();
+        if (window.ethereum) {
+            web3 = new Web3(window.ethereum);
+            const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            userAddr = accs[0];
+            contract = new web3.eth.Contract(ABI, CONTRACT_ADDR);
+            
+            document.getElementById('connectBox').classList.add('hidden');
+            document.getElementById('walletInfo').style.display = 'inline-block';
+            document.getElementById('walletInfo').innerText = userAddr.slice(0,6) + '...' + userAddr.slice(-4);
+            
+            checkStatus();
+        } else { alert("Нужен MetaMask!"); }
     }
 
-    async function loadData() {
-        try {
-            const user = await contract.methods.users(currentUser).call();
-            const admin = await contract.methods.admin().call();
+    async function checkStatus() {
+        const user = await contract.methods.users(userAddr).call();
+        const owner = await contract.methods.owner().call();
 
-            if(currentUser.toLowerCase() === admin.toLowerCase()) {
-                document.getElementById('adminTool').classList.remove('hidden');
-                document.getElementById('btnAdminJoin').classList.remove('hidden');
-            }
+        // Показ админки
+        if (userAddr.toLowerCase() === owner.toLowerCase()) {
+            document.getElementById('adminPanel').classList.remove('hidden');
+            const b = await web3.eth.getBalance(CONTRACT_ADDR);
+            document.getElementById('contractBalance').innerText = web3.utils.fromWei(b, 'ether') + " BNB";
+        }
 
-            if(user.exists) {
-                document.getElementById('regBox').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-                
-                document.getElementById('userBalance').innerText = web3.utils.fromWei(user.internalBalance, 'ether') + ' BNB';
-                document.getElementById('uReferrer').innerText = user.referrer.slice(0,10) + '...';
-                
-                // РЕФЕРАЛЬНАЯ ЛОГИКА
-                const pCount = parseInt(user.partnersCount);
-                if(pCount >= 2) {
-                    document.getElementById('refLink').value = "ЛИМИТ ИСЧЕРПАН";
-                    document.getElementById('limitMsg').style.display = 'block';
-                } else {
-                    document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + currentUser;
-                }
+        if (user.exists) {
+            document.getElementById('regBox').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            document.getElementById('curatorAddr').innerText = user.referrer.slice(0,8) + "...";
+            document.getElementById('userBalance').innerText = web3.utils.fromWei(user.internalBalance, 'ether') + " BNB";
 
-                // КРАСИМ КРУЖКИ
-                const struct = parseInt(user.structureCount);
-                const dots = document.querySelectorAll('.dot');
-                for(let i=0; i < struct; i++) {
-                    if(i < 2) dots[i].classList.add('active-1');
-                    else if(i < 8) dots[i].classList.add('active-2');
-                    else if(i < 22) dots[i].classList.add('active-3');
-                }
-                
-                document.getElementById('l1-count').innerText = (struct > 2 ? 2 : struct) + "/2";
-                document.getElementById('l2-count').innerText = (struct > 8 ? 6 : (struct > 2 ? struct-2 : 0)) + "/6";
-
+            // Логика ссылки (лимит 2)
+            if (parseInt(user.partnersCount) >= 2) {
+                document.getElementById('refLink').value = "ЛИМИТ 2/2 ИСЧЕРПАН";
+                document.getElementById('limitText').style.display = 'block';
             } else {
-                // Если не зарегистрирован, проверяем ссылку
-                const params = new URLSearchParams(window.location.search);
-                if(params.has('ref')) {
-                    document.getElementById('refInput').value = params.get('ref');
-                }
+                document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + userAddr;
             }
-        } catch(e) { console.error("Ошибка загрузки:", e); }
+
+            // Заполнение кружков
+            const total = parseInt(user.structureCount);
+            const allDots = document.querySelectorAll('.dot');
+            for(let i=0; i<total; i++) {
+                if(i < 2) allDots[i].classList.add('active-lvl1');
+                else if(i < 8) allDots[i].classList.add('active-lvl2');
+                else if(i < 22) allDots[i].classList.add('active-lvl3');
+            }
+            document.getElementById('l1-stat').innerText = (total > 2 ? 2 : total) + "/2";
+            document.getElementById('l2-stat').innerText = (total > 8 ? 6 : (total > 2 ? total-2 : 0)) + "/6";
+
+        } else {
+            document.getElementById('regBox').classList.remove('hidden');
+            const urlParams = new URLSearchParams(window.location.search);
+            document.getElementById('refInput').value = urlParams.get('ref') || "0x000... (Прямой вход)";
+        }
     }
 
     async function register() {
-        const ref = document.getElementById('refInput').value || '0x0000000000000000000000000000000000000000';
+        const ref = new URLSearchParams(window.location.search).get('ref') || "0x0000000000000000000000000000000000000000";
         try {
-            await contract.methods.register(ref).send({
-                from: currentUser, 
-                value: web3.utils.toWei('0.001', 'ether')
-            });
+            await contract.methods.register(ref).send({ from: userAddr, value: web3.utils.toWei('0.001', 'ether') });
             location.reload();
-        } catch(e) { alert("Ошибка оплаты"); }
+        } catch(e) { console.error(e); }
     }
 
-    async function adminRegister() {
+    async function adminAddUser() {
+        const target = document.getElementById('adminNewUser').value;
+        const ref = document.getElementById('adminNewRef').value;
         try {
-            await contract.methods.adminRegister().send({from: currentUser});
-            location.reload();
-        } catch(e) { alert("Только админ!"); }
-    }
-
-    async function checkUser() {
-        const addr = document.getElementById('checkAddr').value;
-        if(!web3.utils.isAddress(addr)) return alert("Неверный адрес");
-        const d = await contract.methods.users(addr).call();
-        alert(`Адрес: ${addr}\nУровень: ${d.level}\nЛичников: ${d.partnersCount}\nВ структуре: ${d.structureCount}\nБаланс: ${web3.utils.fromWei(d.internalBalance, 'ether')} BNB`);
+            await contract.methods.adminAddUser(target, ref).send({ from: userAddr });
+            alert("Участник добавлен!");
+        } catch(e) { alert("Ошибка: только админ или неверный адрес"); }
     }
 
     function copyLink() {
-        const copyText = document.getElementById("refLink");
-        if(copyText.value === "ЛИМИТ ИСЧЕРПАН") return;
-        copyText.select();
-        navigator.clipboard.writeText(copyText.value);
+        const el = document.getElementById('refLink');
+        if (el.value.includes("ЛИМИТ")) return;
+        el.select();
+        navigator.clipboard.writeText(el.value);
         alert("Ссылка скопирована!");
     }
 </script>
