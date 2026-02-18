@@ -9,6 +9,7 @@
         :root {
             --neon-green: #00ff9d;
             --gold: #ffd700;
+            --telegram-blue: #0088cc;
             --bg-dark: #0f0f1b;
             --card-bg: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
@@ -41,15 +42,17 @@
             gap: 12px;
         }
         .logo span { font-size: 2.5rem; filter: drop-shadow(0 0 10px var(--gold)); }
+        
         .wallet-addr {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--gold);
             background: rgba(255, 215, 0, 0.1);
-            padding: 5px 15px;
+            padding: 8px 15px;
             border-radius: 20px;
             margin-top: 10px;
             display: inline-block;
             border: 1px solid rgba(255, 215, 0, 0.2);
+            font-family: monospace;
         }
 
         /* STATS */
@@ -102,16 +105,24 @@
             width: 100%; padding: 16px; border-radius: 14px; border: none;
             font-weight: bold; cursor: pointer; transition: 0.3s;
             font-size: 0.9rem; text-transform: uppercase;
+            display: block; text-decoration: none; text-align: center;
+            box-sizing: border-box;
         }
         .btn-green { background: var(--neon-green); color: #000; box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3); }
         .btn-green:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 255, 157, 0.4); }
         
+        .btn-tg { 
+            background: var(--telegram-blue); color: #fff; margin-top: 10px; 
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+        }
+
         input {
             width: 100%; padding: 14px; background: #000; border: 1px solid #333;
             border-radius: 12px; color: #fff; margin: 10px 0; box-sizing: border-box;
+            font-family: monospace;
         }
 
-        .inviter-info { text-align: center; font-size: 0.8rem; color: #888; margin-top: 10px; }
+        .inviter-info { text-align: center; font-size: 0.9rem; color: #888; margin-top: 10px; padding: 10px; }
 
         .hidden { display: none; }
     </style>
@@ -123,6 +134,7 @@
         <div class="logo"><span>💰</span> SPARKPOINT</div>
         <div id="addrDisplay" class="wallet-addr hidden">Not Connected</div>
         <button id="connBtn" class="btn btn-green" style="margin-top: 15px;" onclick="connect()">Connect Wallet</button>
+        <a href="https://t.me/spartpoint/32" target="_blank" class="btn btn-tg">📖 Как оплатить? (Инструкция)</a>
     </div>
 
     <div class="stats-grid">
@@ -148,7 +160,7 @@
     </div>
 
     <div id="inviterBox" class="inviter-info hidden">
-        🤝 Invited by: <span id="invAddr" style="color: var(--neon-green);"></span>
+        🤝 Пригласил: <br><span id="invAddr" style="color: var(--neon-green); font-family: monospace;"></span>
     </div>
 
     <div id="regArea" class="box">
@@ -158,9 +170,9 @@
     </div>
 
     <div id="linkArea" class="box hidden">
-        <label style="font-size: 0.8rem; color: #888;">YOUR REFERRAL LINK</label>
+        <label style="font-size: 0.8rem; color: #888;">ВАША ССЫЛКА (МАКС 2 ЧЕЛ)</label>
         <input type="text" id="refLink" readonly>
-        <button id="copyBtn" class="btn btn-green" onclick="copy()">Copy Link 🔗</button>
+        <button id="copyBtn" class="btn btn-green" onclick="copy()">Копировать ссылку 🔗</button>
     </div>
 
     <div id="adminPanel" class="box hidden" style="border-color: var(--gold);">
@@ -189,7 +201,7 @@
     buildDots('row1', 2); buildDots('row2', 6); buildDots('row3', 14);
 
     async function connect() {
-        if(!window.ethereum) return alert("Install MetaMask");
+        if(!window.ethereum) return alert("Install MetaMask/TrustWallet");
         const accs = await window.ethereum.request({method: 'eth_requestAccounts'});
         user = accs[0];
         web3 = new Web3(window.ethereum);
@@ -211,29 +223,43 @@
             document.getElementById('regArea').classList.add('hidden');
             document.getElementById('linkArea').classList.remove('hidden');
             document.getElementById('valLvl').innerText = data.level;
-            document.getElementById('valBal').innerText = web3.utils.fromWei(data.internalBalance, 'ether') + " BNB";
+            document.getElementById('valBal').innerText = parseFloat(web3.utils.fromWei(data.internalBalance, 'ether')).toFixed(4) + " BNB";
             
             document.getElementById('inviterBox').classList.remove('hidden');
-            document.getElementById('invAddr').innerText = data.referrer.substring(0,10)+'...';
+            // Улучшенное отображение адреса (начало и конец)
+            const ref = data.referrer;
+            document.getElementById('invAddr').innerText = ref.substring(0,8) + "..." + ref.substring(36);
 
             const dots = document.querySelectorAll('.dot');
             for(let i=0; i < parseInt(data.structureCount); i++) if(dots[i]) dots[i].classList.add('active');
 
-            const link = window.location.origin + window.location.pathname + "?ref=" + user;
-            document.getElementById('refLink').value = link;
+            // Логика ссылки и лимита
+            const partners = parseInt(data.partnersCount);
+            const linkInput = document.getElementById('refLink');
+            const copyBtn = document.getElementById('copyBtn');
 
-            if(parseInt(data.partnersCount) >= 2) {
-                document.getElementById('copyBtn').innerText = "✅ Limit 2/2 Reached";
-                document.getElementById('copyBtn').style.background = "#333";
-                document.getElementById('copyBtn').style.color = "#888";
+            if(partners >= 2) {
+                linkInput.value = "ЛИМИТ РЕФЕРАЛОВ ДОСТИГНУТ";
+                linkInput.style.color = "#ff4444";
+                copyBtn.innerText = "❌ Лимит 2/2 исчерпан";
+                copyBtn.disabled = true;
+                copyBtn.style.background = "#222";
+                copyBtn.style.color = "#666";
+                copyBtn.style.boxShadow = "none";
+                copyBtn.onclick = null;
+            } else {
+                const link = window.location.origin + window.location.pathname + "?ref=" + user;
+                linkInput.value = link;
             }
         }
     }
 
     async function register() {
         const r = document.getElementById('refInput').value || '0x0000000000000000000000000000000000000000';
-        await contract.methods.register(r).send({from: user, value: web3.utils.toWei('0.001', 'ether')});
-        location.reload();
+        try {
+            await contract.methods.register(r).send({from: user, value: web3.utils.toWei('0.001', 'ether')});
+            location.reload();
+        } catch(e) { console.error(e); }
     }
 
     async function adminAdd() {
@@ -242,8 +268,11 @@
     }
 
     function copy() {
-        const t = document.getElementById("refLink"); t.select();
-        navigator.clipboard.writeText(t.value); alert("Copied!");
+        const t = document.getElementById("refLink");
+        if(t.value.includes("ЛИМИТ")) return;
+        t.select();
+        navigator.clipboard.writeText(t.value);
+        alert("Ссылка скопирована!");
     }
 
     window.onload = () => {
