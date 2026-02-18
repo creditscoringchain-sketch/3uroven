@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SparkPoint Premium - Full Control</title>
+    <title>SparkPoint Premium - Final Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
         :root {
@@ -11,8 +11,8 @@
             --neon-blue: #00d9ff;
             --gold: #ffd700;
             --tg-blue: #0088cc;
-            --bg-dark: #0f0f1b;
-            --card-bg: rgba(255, 255, 255, 0.07); /* Сделал чуть светлее */
+            --bg-dark: #0a0a14;
+            --card-bg: rgba(255, 255, 255, 0.08); /* Ярче */
             --border: rgba(255, 255, 255, 0.15);
         }
 
@@ -28,19 +28,23 @@
 
         /* HEADER */
         .header { text-align: center; margin-bottom: 25px; }
-        .logo {
-            font-size: 2rem; font-weight: 900; letter-spacing: 2px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
+        .logo { font-size: 2rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
         
         .wallet-addr {
-            font-size: 0.8rem; color: var(--gold); background: rgba(0,0,0,0.4);
+            font-size: 0.8rem; color: var(--gold); background: rgba(0,0,0,0.5);
             padding: 8px 16px; border-radius: 50px; margin-top: 10px;
             display: inline-block; border: 1px solid var(--border); font-family: monospace;
         }
 
+        /* Кнопка инструкции */
+        .btn-tg { 
+            background: var(--tg-blue); color: #fff; margin-top: 15px; 
+            text-decoration: none; display: block; padding: 12px; border-radius: 12px;
+            font-weight: bold; font-size: 0.85rem; text-align: center;
+        }
+
         /* STATS */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
         .stat-card {
             background: var(--card-bg); border: 1px solid var(--border);
             border-radius: 20px; padding: 15px; text-align: center;
@@ -49,8 +53,8 @@
 
         /* MATRIX BOX */
         .matrix-box {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
-            border-radius: 28px; padding: 20px; margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+            border-radius: 28px; padding: 20px; margin: 20px 0;
         }
         .lvl-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -60,40 +64,41 @@
         
         /* DOTS & ANIMATIONS */
         .dots { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-        .dot { width: 24px; height: 24px; border-radius: 50%; background: #222; border: 1px solid #333; transition: 0.4s; }
+        .dot { width: 24px; height: 24px; border-radius: 50%; background: #222; border: 1px solid #333; transition: 0.5s; }
 
-        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.5); } 70% { box-shadow: 0 0 0 8px rgba(0, 255, 157, 0); } }
-        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 217, 255, 0.5); } 70% { box-shadow: 0 0 0 8px rgba(0, 217, 255, 0); } }
-        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.5); } 70% { box-shadow: 0 0 0 8px rgba(255, 215, 0, 0); } }
+        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); } }
+        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 217, 255, 0.6); } 70% { box-shadow: 0 0 0 10px rgba(0, 217, 255, 0); } }
+        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.6); } 70% { box-shadow: 0 0 0 12px rgba(255, 215, 0, 0); } }
 
-        .active-l1 { background: var(--neon-green); animation: pulse-green 2s infinite; }
-        .active-l2 { background: var(--neon-blue); animation: pulse-blue 2s infinite; }
-        .active-l3 { background: var(--gold); animation: pulse-gold 2s infinite; border-radius: 4px; }
+        .active-l1 { background: var(--neon-green); animation: pulse-green 2s infinite; border-color: #fff; }
+        .active-l2 { background: var(--neon-blue); animation: pulse-blue 2s infinite; border-color: #fff; }
+        .active-l3 { background: var(--gold); animation: pulse-gold 2s infinite; border-radius: 4px; border-color: #fff; }
 
-        /* INPUTS & BUTTONS */
+        .lvl-locked { opacity: 0.3; filter: grayscale(1); }
+
+        /* BOXES */
         .box { 
-            background: rgba(255, 255, 255, 0.08); /* Светлее, чтобы не было "темно" */
-            border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 15px; 
+            background: var(--card-bg); border: 1px solid var(--border); 
+            border-radius: 24px; padding: 20px; margin-bottom: 15px; 
         }
-        .btn {
-            width: 100%; padding: 15px; border-radius: 14px; border: none;
-            font-weight: bold; cursor: pointer; text-transform: uppercase;
-        }
-        .btn-green { background: var(--neon-green); color: #000; }
-        .btn-tg { background: var(--tg-blue); color: #fff; margin-top: 10px; display: block; text-decoration: none; text-align: center; }
         
         input {
-            width: 100%; padding: 12px; background: #000; border: 1px solid #444;
-            border-radius: 10px; color: #fff; margin: 8px 0; box-sizing: border-box;
+            width: 100%; padding: 14px; background: rgba(0,0,0,0.4); border: 1px solid #444;
+            border-radius: 12px; color: #fff; margin: 10px 0; box-sizing: border-box; font-family: monospace;
         }
 
-        /* ADMIN PANEL SPECIFIC */
-        .admin-box { border: 2px solid var(--gold) !important; background: rgba(255, 215, 0, 0.05) !important; }
-        .admin-title { color: var(--gold); font-weight: bold; margin-bottom: 10px; display: block; }
-        .admin-btn { background: var(--gold); color: #000; margin-top: 5px; font-size: 0.8rem; }
+        .btn {
+            width: 100%; padding: 16px; border-radius: 16px; border: none;
+            font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.2s;
+        }
+        .btn-green { background: var(--neon-green); color: #000; box-shadow: 0 4px 15px rgba(0,255,157,0.2); }
+        .btn-green:active { transform: scale(0.98); }
+
+        /* ADMIN STYLE */
+        .admin-panel { border: 2px solid var(--gold); background: rgba(255, 215, 0, 0.05); }
+        .admin-btn { background: var(--gold); color: #000; margin-top: 10px; font-size: 0.75rem; padding: 10px; }
 
         .hidden { display: none; }
-        .lvl-locked { opacity: 0.3; filter: grayscale(1); }
     </style>
 </head>
 <body>
@@ -102,204 +107,64 @@
     <div class="header">
         <div class="logo">💰 SPARKPOINT</div>
         <div id="addrDisplay" class="wallet-addr hidden">...</div>
-        <button id="connBtn" class="btn btn-green" style="margin-top: 15px;" onclick="connect()">ПОДКЛЮЧИТЬ КОШЕЛЕК</button>
-        <a href="https://t.me/spartpoint/32" target="_blank" class="btn btn-tg">📖 ИНСТРУКЦИЯ ПО ОПЛАТЕ</a>
+        <button id="connBtn" class="btn btn-green" style="margin-top: 15px;" onclick="connect()">ВОЙТИ В КАБИНЕТ</button>
+        <a href="https://t.me/spartpoint/32" target="_blank" class="btn-tg">📖 ИНСТРУКЦИЯ ПО ОПЛАТЕ</a>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
-            <small style="color: #888;">УРОВЕНЬ</small>
-            <div class="stat-value" id="valLvl">0</div>
+            <small style="color: #888; display: block;">УРОВЕНЬ</small>
+            <span class="stat-value" id="valLvl">0</span>
         </div>
         <div class="stat-card">
-            <small style="color: #888;">БАЛАНС (BNB)</small>
-            <div class="stat-value" id="valBal">0.000</div>
+            <small style="color: #888; display: block;">ДОХОД BNB</small>
+            <span class="stat-value" id="valBal">0.0000</span>
         </div>
     </div>
 
     <div class="matrix-box">
-        <div class="lvl-header" style="color: var(--neon-green);"><span>LVL 1</span><small id="l1-count">0/2</small></div>
+        <div class="lvl-header" style="color: var(--neon-green);">
+            <b>УРОВЕНЬ 1</b> <small id="l1-txt">0/2</small>
+        </div>
         <div id="row1" class="dots"></div>
 
-        <div id="h2" class="lvl-header lvl-locked" style="color: var(--neon-blue);"><span>LVL 2</span><small id="l2-count">0/6</small></div>
+        <div id="h2" class="lvl-header lvl-locked" style="color: var(--neon-blue);">
+            <b>УРОВЕНЬ 2</b> <small id="l2-txt">0/6</small>
+        </div>
         <div id="row2" class="dots lvl-locked"></div>
 
-        <div id="h3" class="lvl-header lvl-locked" style="color: var(--gold);"><span>LVL 3</span><small>DIRECT PAY</small></div>
+        <div id="h3" class="lvl-header lvl-locked" style="color: var(--gold);">
+            <b>УРОВЕНЬ 3</b> <small>DIRECT PAY</small>
+        </div>
         <div id="row3" class="dots lvl-locked"></div>
     </div>
 
     <div id="inviterBox" class="box hidden" style="text-align: center;">
-        🤝 ПРИГЛАСИЛ: <span id="invAddr" style="color: var(--neon-green); font-family: monospace;"></span>
+        🤝 ПРИГЛАСИЛ: <br><span id="invAddr" style="color: var(--gold); font-family: monospace; font-size: 0.9rem;"></span>
     </div>
 
     <div id="regArea" class="box">
-        <label>АДРЕС КУРАТОРА</label>
+        <label style="font-size: 0.75rem; color: #aaa;">АДРЕС ВАШЕГО КУРАТОРА</label>
         <input type="text" id="refInput" placeholder="0x...">
-        <button class="btn btn-green" onclick="register()">АКТИВИРОВАТЬ (0.001 BNB)</button>
+        <button class="btn btn-green" onclick="register()">АКТИВИРОВАТЬ МАТРИЦУ</button>
     </div>
 
     <div id="linkArea" class="box hidden">
-        <label>ВАША ССЫЛКА</label>
+        <label style="font-size: 0.75rem; color: #aaa;">ВАША ПАРТНЕРСКАЯ ССЫЛКА</label>
         <input type="text" id="refLink" readonly>
-        <button id="copyBtn" class="btn btn-green" onclick="copy()">КОПИРОВАТЬ</button>
+        <button id="copyBtn" class="btn btn-green" onclick="copy()">КОПИРОВАТЬ 🔗</button>
     </div>
 
-    <div id="adminPanel" class="box admin-box hidden">
-        <span class="admin-title">👑 ПАНЕЛЬ УПРАВЛЕНИЯ</span>
-        
-        <div style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 10px;">
-            <small>ДОБАВИТЬ УЧАСТНИКА БЕСПЛАТНО</small>
-            <input type="text" id="admU" placeholder="Адрес участника">
-            <input type="text" id="admR" placeholder="Адрес куратора">
-            <button class="btn admin-btn" onclick="adminAdd()">ДОБАВИТЬ В СЕТЬ</button>
+    <div id="adminPanel" class="box admin-panel hidden">
+        <b style="color: var(--gold);">👑 ADMIN TOOLS</b>
+        <div style="margin-top: 15px;">
+            <small>ДОБАВИТЬ УЧАСТНИКА:</small>
+            <input type="text" id="admU" placeholder="Адрес нового">
+            <input type="text" id="admR" placeholder="Адрес реферера">
+            <button class="btn admin-btn" onclick="adminAdd()">ДОБАВИТЬ В СИСТЕМУ</button>
         </div>
-
-        <div style="margin-bottom: 15px;">
-            <small>ПРОВЕРИТЬ КОШЕЛЕК</small>
-            <input type="text" id="checkAddr" placeholder="0x...">
-            <button class="btn admin-btn" style="background: #555; color: #fff;" onclick="checkUser()">ПОСМОТРЕТЬ СТАТИСТИКУ</button>
-        </div>
-
-        <div>
-            <small>ВЫВОД СРЕДСТВ ИЗ КОНТРАКТА</small>
-            <button class="btn admin-btn" style="background: #ff4444; color: #fff;" onclick="adminWithdraw()">ВЫВЕСТИ ВСЕ BNB</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const ADDR = '0x2c4326c0577e8Ef8679B302eAd3603Df8224B7ed';
-    const ABI = [
-        {"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"address","name":"_referrer","type":"address"}],"name":"adminAddUser","outputs":[],"stateMutability":"nonpayable","type":"function"},
-        {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}, // Проверь, есть ли такая функция в твоем контракте
-        {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"payable","type":"function"},
-        {"inputs":[],"name":"admin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-        {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"address","name":"referrer","type":"address"},{"internalType":"uint256","name":"partnersCount","type":"uint256"},{"internalType":"uint256","name":"structureCount","type":"uint256"},{"internalType":"uint256","name":"internalBalance","type":"uint256"},{"internalType":"bool","name":"exists","type":"bool"}],"stateMutability":"view","type":"function"}
-    ];
-
-    let web3, contract, user;
-
-    function buildDots(id, n) { 
-        const r = document.getElementById(id); 
-        r.innerHTML = '';
-        for(let i=0; i<n; i++) r.innerHTML += '<div class="dot"></div>'; 
-    }
-    buildDots('row1', 2); buildDots('row2', 6); buildDots('row3', 14);
-
-    async function connect() {
-        if(!window.ethereum) return alert("Нужен MetaMask или TrustWallet");
-        const accs = await window.ethereum.request({method: 'eth_requestAccounts'});
-        user = accs[0];
-        web3 = new Web3(window.ethereum);
-        contract = new web3.eth.Contract(ABI, ADDR);
-        
-        document.getElementById('connBtn').classList.add('hidden');
-        document.getElementById('addrDisplay').classList.remove('hidden');
-        document.getElementById('addrDisplay').innerText = user.substring(0,8)+'...'+user.substring(36);
-        update();
-    }
-
-    async function update() {
-        const data = await contract.methods.users(user).call();
-        const boss = await contract.methods.admin().call();
-
-        // Показываем админку только админу
-        if(user.toLowerCase() === boss.toLowerCase()) {
-            document.getElementById('adminPanel').classList.remove('hidden');
-        }
-
-        if(data.exists) {
-            document.getElementById('regArea').classList.add('hidden');
-            document.getElementById('linkArea').classList.remove('hidden');
-            document.getElementById('inviterBox').classList.remove('hidden');
-            
-            document.getElementById('valLvl').innerText = data.level;
-            document.getElementById('valBal').innerText = parseFloat(web3.utils.fromWei(data.internalBalance, 'ether')).toFixed(4);
-            document.getElementById('invAddr').innerText = data.referrer.substring(0,10) + "...";
-
-            const partners = parseInt(data.partnersCount);
-            const struct = parseInt(data.structureCount);
-
-            // Отрисовка заполнения уровней
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach(d => d.className = 'dot'); // Сброс классов
-            for(let i=0; i < struct; i++) {
-                if(i < 2) dots[i].classList.add('active-l1');
-                else if(i < 8) dots[i].classList.add('active-l2');
-                else if(i < 22) dots[i].classList.add('active-l3');
-            }
-
-            // Разблокировка визуальных уровней
-            if(struct >= 2) {
-                document.getElementById('h2').classList.remove('lvl-locked');
-                document.getElementById('row2').classList.remove('lvl-locked');
-                document.getElementById('l1-count').innerText = "2/2";
-            } else {
-                document.getElementById('l1-count').innerText = struct + "/2";
-            }
-
-            if(struct >= 8) {
-                document.getElementById('h3').classList.remove('lvl-locked');
-                document.getElementById('row3').classList.remove('lvl-locked');
-                document.getElementById('l2-count').innerText = "6/6";
-            } else if (struct > 2) {
-                document.getElementById('l2-count').innerText = (struct-2) + "/6";
-            }
-
-            // Логика лимита рефералов
-            const lInput = document.getElementById('refLink');
-            const cBtn = document.getElementById('copyBtn');
-            if(partners >= 2) {
-                lInput.value = "ЛИМИТ (2/2) ДОСТИГНУТ";
-                cBtn.innerText = "ГОТОВО ✅";
-                cBtn.disabled = true;
-                cBtn.style.opacity = "0.5";
-            } else {
-                lInput.value = window.location.origin + window.location.pathname + "?ref=" + user;
-            }
-        }
-    }
-
-    async function register() {
-        const r = document.getElementById('refInput').value || '0x0000000000000000000000000000000000000000';
-        await contract.methods.register(r).send({from: user, value: web3.utils.toWei('0.001', 'ether')});
-        location.reload();
-    }
-
-    // ФУНКЦИИ АДМИНА
-    async function adminAdd() {
-        const u = document.getElementById('admU').value;
-        const r = document.getElementById('admR').value;
-        if(!u || !r) return alert("Заполни оба поля");
-        await contract.methods.adminAddUser(u, r).send({from: user});
-        alert("Участник добавлен!");
-    }
-
-    async function checkUser() {
-        const target = document.getElementById('checkAddr').value;
-        if(!target) return alert("Введи адрес");
-        const d = await contract.methods.users(target).call();
-        alert(`Уровень: ${d.level}\nПартнеров: ${d.partnersCount}\nВ структуре: ${d.structureCount}\nБаланс: ${web3.utils.fromWei(d.internalBalance, 'ether')} BNB`);
-    }
-
-    async function adminWithdraw() {
-        if(confirm("Вы уверены, что хотите вывести все BNB с контракта?")) {
-            await contract.methods.withdraw().send({from: user});
-            alert("Средства выведены!");
-        }
-    }
-
-    function copy() {
-        const t = document.getElementById("refLink");
-        if(t.value.includes("ЛИМИТ")) return;
-        t.select(); navigator.clipboard.writeText(t.value);
-        alert("Скопировано!");
-    }
-
-    window.onload = () => {
-        const p = new URLSearchParams(window.location.search);
-        if(p.has('ref')) document.getElementById('refInput').value = p.get('ref');
-    };
-</script>
-</body>
-</html>
+        <div style="margin-top: 20px; border-top: 1px solid rgba(255,215,0,0.2); padding-top: 10px;">
+            <small>ПРОВЕРКА КОШЕЛЬКА:</small>
+            <input type="text" id="checkA" placeholder="0x...">
+            <button class="btn admin-btn" style="background: #444; color: #fff;" onclick="
+                
