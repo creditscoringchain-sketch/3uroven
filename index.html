@@ -1,76 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPARKPOINT FIXED</title>
+    <title>SparkPoint Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
     <style>
-        body { background: #0b0b15; color: white; font-family: sans-serif; padding: 20px; }
-        .box { background: #161625; border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .green { background: #00ff9d; color: #000; }
-        .gold { background: #ffd700; color: #000; }
-        input { width: 100%; padding: 12px; box-sizing: border-box; background: #000; color: #fff; border: 1px solid #444; border-radius: 8px; margin-top: 5px; }
+        :root {
+            --neon-green: #00ff9d;
+            --gold: #ffd700;
+            --bg-dark: #0f0f1b;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at top right, #1a1a2e, transparent);
+            color: #fff;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 420px; margin: 0 auto; }
+
+        /* HEADER */
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .logo span { font-size: 2.5rem; filter: drop-shadow(0 0 10px var(--gold)); }
+        .wallet-addr {
+            font-size: 0.75rem;
+            color: var(--gold);
+            background: rgba(255, 215, 0, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+            display: inline-block;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        /* STATS */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+        }
+        .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .stat-value { font-size: 1.4rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* MATRIX */
+        .matrix-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .lvl-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 20px 0 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px;
+        }
+        .lvl-header:first-child { margin-top: 0; }
+        .lvl-name { font-size: 0.85rem; font-weight: bold; color: var(--neon-green); }
+        .dots { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .dot {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: #222; border: 1px solid #333;
+            transition: 0.4s; position: relative;
+        }
+        .dot.active {
+            background: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+            border: none;
+        }
+
+        /* BUTTONS & INPUTS */
+        .box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+        .btn {
+            width: 100%; padding: 16px; border-radius: 14px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+            font-size: 0.9rem; text-transform: uppercase;
+        }
+        .btn-green { background: var(--neon-green); color: #000; box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3); }
+        .btn-green:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 255, 157, 0.4); }
         
-        /* КРУГИ */
-        .lvl-set { margin-top: 20px; text-align: center; }
-        .dots { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .dot { width: 18px; height: 18px; border-radius: 50%; background: #333; border: 1px solid #555; }
-        .active { background: #00ff9d !important; box-shadow: 0 0 10px #00ff9d; border: none; }
+        input {
+            width: 100%; padding: 14px; background: #000; border: 1px solid #333;
+            border-radius: 12px; color: #fff; margin: 10px 0; box-sizing: border-box;
+        }
+
+        .inviter-info { text-align: center; font-size: 0.8rem; color: #888; margin-top: 10px; }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div style="text-align: center;">
-        <h1 style="color: #ffd700;">SPARKPOINT</h1>
-        <div id="myAddr" style="font-size: 10px; color: #888;">Wallet not connected</div>
-        <button id="btnConnect" class="btn green" onclick="connect()">CONNECT WALLET</button>
+<div class="container">
+    <div class="header">
+        <div class="logo"><span>💰</span> SPARKPOINT</div>
+        <div id="addrDisplay" class="wallet-addr hidden">Not Connected</div>
+        <button id="connBtn" class="btn btn-green" style="margin-top: 15px;" onclick="connect()">Connect Wallet</button>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-top: 20px;">
-        <div class="box" style="flex: 1; text-align: center;">
-            <small>LEVEL</small><br><b id="statLvl">-</b>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">🚀 Level</span>
+            <div class="stat-value" id="valLvl">-</div>
         </div>
-        <div class="box" style="flex: 1; text-align: center;">
-            <small>EARNED</small><br><b id="statBal">0.00</b>
-        </div>
-    </div>
-
-    <div class="box">
-        <div class="lvl-set">
-            <small>LEVEL 1 (2 КРУГА)</small>
-            <div id="r1" class="dots"></div>
-        </div>
-        <div class="lvl-set">
-            <small>LEVEL 2 (6 КРУГОВ)</small>
-            <div id="r2" class="dots"></div>
-        </div>
-        <div class="lvl-set">
-            <small>LEVEL 3 (14 КРУГОВ)</small>
-            <div id="r3" class="dots"></div>
+        <div class="stat-card">
+            <span class="stat-label">💎 Earned</span>
+            <div class="stat-value" id="valBal">0.00</div>
         </div>
     </div>
 
-    <div class="box" id="inviteArea">
-        <label>ВАША ССЫЛКА:</label>
-        <input type="text" id="refLink" readonly value="Connect wallet to see link">
-        <button id="copyBtn" class="btn green" onclick="copyLink()">COPY LINK</button>
+    <div class="matrix-box">
+        <div class="lvl-header"><span class="lvl-name">LEVEL 1</span><small>2 SLOTS</small></div>
+        <div id="row1" class="dots"></div>
+
+        <div class="lvl-header"><span class="lvl-name">LEVEL 2</span><small>6 SLOTS</small></div>
+        <div id="row2" class="dots"></div>
+
+        <div class="lvl-header"><span class="lvl-name">LEVEL 3</span><small>14 SLOTS</small></div>
+        <div id="row3" class="dots"></div>
     </div>
 
-    <div class="box" id="regArea">
-        <label>REFERRER ADDRESS:</label>
+    <div id="inviterBox" class="inviter-info hidden">
+        🤝 Invited by: <span id="invAddr" style="color: var(--neon-green);"></span>
+    </div>
+
+    <div id="regArea" class="box">
+        <label style="font-size: 0.8rem; color: #888;">REFERRER ADDRESS</label>
         <input type="text" id="refInput" placeholder="0x...">
-        <button class="btn green" onclick="register()">ACTIVATE (0.001 BNB)</button>
+        <button class="btn btn-green" onclick="register()">Activate Matrix (0.001 BNB)</button>
     </div>
 
-    <div class="box" id="adminArea" style="display: none; border-color: gold;">
-        <b style="color: gold;">ADMIN PANEL</b><br><br>
-        <input type="text" id="aUser" placeholder="User Address">
-        <input type="text" id="aRef" placeholder="Referrer Address">
-        <button class="btn gold" onclick="adminAdd()">ADD FREE USER</button>
-        <button class="btn" style="background: #fff;" onclick="withdraw()">WITHDRAW CONTRACT</button>
+    <div id="linkArea" class="box hidden">
+        <label style="font-size: 0.8rem; color: #888;">YOUR REFERRAL LINK</label>
+        <input type="text" id="refLink" readonly>
+        <button id="copyBtn" class="btn btn-green" onclick="copy()">Copy Link 🔗</button>
     </div>
+
+    <div id="adminPanel" class="box hidden" style="border-color: var(--gold);">
+        <b style="color: var(--gold);">👑 ADMIN PANEL</b>
+        <input type="text" id="admU" placeholder="User Address">
+        <input type="text" id="admR" placeholder="Referrer Address">
+        <button class="btn" style="background: var(--gold);" onclick="adminAdd()">Add Free User</button>
+    </div>
+</div>
 
 <script>
     const ADDR = '0x2c4326c0577e8Ef8679B302eAd3603Df8224B7ed';
@@ -83,48 +182,50 @@
 
     let web3, contract, user;
 
-    // Сразу рисуем пустые круги
-    function build(id, n) { 
+    function buildDots(id, n) { 
         const r = document.getElementById(id); 
         for(let i=0; i<n; i++) r.innerHTML += '<div class="dot"></div>'; 
     }
-    build('r1', 2); build('r2', 6); build('r3', 14);
+    buildDots('row1', 2); buildDots('row2', 6); buildDots('row3', 14);
 
     async function connect() {
-        if(!window.ethereum) return alert("No Wallet");
-        const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
-        user = accounts[0];
+        if(!window.ethereum) return alert("Install MetaMask");
+        const accs = await window.ethereum.request({method: 'eth_requestAccounts'});
+        user = accs[0];
         web3 = new Web3(window.ethereum);
         contract = new web3.eth.Contract(ABI, ADDR);
-        document.getElementById('myAddr').innerText = user;
-        document.getElementById('btnConnect').style.display = 'none';
-        refresh();
+        
+        document.getElementById('connBtn').classList.add('hidden');
+        document.getElementById('addrDisplay').classList.remove('hidden');
+        document.getElementById('addrDisplay').innerText = user.substring(0,6)+'...'+user.substring(38);
+        update();
     }
 
-    async function refresh() {
+    async function update() {
         const data = await contract.methods.users(user).call();
         const boss = await contract.methods.admin().call();
 
-        if(user.toLowerCase() === boss.toLowerCase()) document.getElementById('adminArea').style.display = 'block';
+        if(user.toLowerCase() === boss.toLowerCase()) document.getElementById('adminPanel').classList.remove('hidden');
 
         if(data.exists) {
-            document.getElementById('regArea').style.display = 'none';
-            document.getElementById('statLvl').innerText = data.level;
-            document.getElementById('statBal').innerText = web3.utils.fromWei(data.internalBalance, 'ether');
+            document.getElementById('regArea').classList.add('hidden');
+            document.getElementById('linkArea').classList.remove('hidden');
+            document.getElementById('valLvl').innerText = data.level;
+            document.getElementById('valBal').innerText = web3.utils.fromWei(data.internalBalance, 'ether') + " BNB";
             
-            // Закраска
-            const all = document.querySelectorAll('.dot');
-            for(let i=0; i < parseInt(data.structureCount); i++) {
-                if(all[i]) all[i].classList.add('active');
-            }
+            document.getElementById('inviterBox').classList.remove('hidden');
+            document.getElementById('invAddr').innerText = data.referrer.substring(0,10)+'...';
 
-            // Ссылка
+            const dots = document.querySelectorAll('.dot');
+            for(let i=0; i < parseInt(data.structureCount); i++) if(dots[i]) dots[i].classList.add('active');
+
             const link = window.location.origin + window.location.pathname + "?ref=" + user;
             document.getElementById('refLink').value = link;
 
             if(parseInt(data.partnersCount) >= 2) {
-                document.getElementById('copyBtn').innerText = "LIMIT 2/2 REACHED";
-                document.getElementById('copyBtn').style.background = "#555";
+                document.getElementById('copyBtn').innerText = "✅ Limit 2/2 Reached";
+                document.getElementById('copyBtn').style.background = "#333";
+                document.getElementById('copyBtn').style.color = "#888";
             }
         }
     }
@@ -136,15 +237,13 @@
     }
 
     async function adminAdd() {
-        await contract.methods.adminAddUser(document.getElementById('aUser').value, document.getElementById('aRef').value).send({from: user});
-        alert("Done");
+        await contract.methods.adminAddUser(document.getElementById('admU').value, document.getElementById('admR').value).send({from: user});
+        alert("Success");
     }
 
-    function copyLink() {
-        const copyText = document.getElementById("refLink");
-        copyText.select();
-        navigator.clipboard.writeText(copyText.value);
-        alert("Copied");
+    function copy() {
+        const t = document.getElementById("refLink"); t.select();
+        navigator.clipboard.writeText(t.value); alert("Copied!");
     }
 
     window.onload = () => {
